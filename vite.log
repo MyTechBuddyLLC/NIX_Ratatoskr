@@ -1,0 +1,11 @@
+
+> jules-pwa@0.0.0 dev
+> vite
+
+
+  VITE v7.3.1  ready in 537 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+8:46:47 PM [vite] vite.config.ts changed, restarting server...
+8:46:48 PM [vite] server restarted.
