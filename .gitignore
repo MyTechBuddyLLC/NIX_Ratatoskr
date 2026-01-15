@@ -1,2 +1,10 @@
 # Log files
 vite.log
+*.log
+
+# Dependency directories
+node_modules/
+
+# Build artifacts
+dist/
+.DS_Store
