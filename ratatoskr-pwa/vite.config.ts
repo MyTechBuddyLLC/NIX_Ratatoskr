@@ -19,8 +19,5 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
-    deps: {
-      inline: [/@stablelib\/.*/, /uint8arrays/],
-    },
   },
 })
