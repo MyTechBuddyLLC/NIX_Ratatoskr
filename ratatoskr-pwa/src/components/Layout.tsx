@@ -13,7 +13,7 @@ interface NavItemProps { to: string; icon: ReactNode; text: string; }
 
 const SidebarNavLink = ({ to, icon, text }: NavItemProps) => (
     <NavLink to={to} className={({ isActive }) =>
-        `flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${isActive ? 'bg-gray-200 dark:bg-gray-700' : ''}`
+        `flex items-center p-2 text-foreground-light rounded-lg dark:text-foreground-dark hover:bg-secondary-light dark:hover:bg-secondary-dark group ${isActive ? 'bg-secondary-light dark:bg-secondary-dark' : ''}`
     }>
         {icon}
         <span className="ms-3">{text}</span>
@@ -22,7 +22,7 @@ const SidebarNavLink = ({ to, icon, text }: NavItemProps) => (
 
 const MobileNavLink = ({ to, icon, text }: NavItemProps) => (
     <NavLink to={to} className={({ isActive }) =>
-        `inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group ${isActive ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400'}`
+        `inline-flex flex-col items-center justify-center px-5 hover:bg-secondary-light dark:hover:bg-secondary-dark group ${isActive ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400'}`
     }>
         {icon}
         <span className="text-sm">{text}</span>
@@ -38,22 +38,22 @@ export function Layout() {
     ];
 
     return (
-        <div className="antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+        <div className="antialiased bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">
             {/* Desktop Sidebar */}
             <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
-                <div className="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col">
+                <div className="h-full px-3 py-4 overflow-y-auto bg-primary-light dark:bg-primary-dark flex flex-col">
                     <a href="/" className="flex items-center ps-2.5 mb-5">
                         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Ratatoskr</span>
                     </a>
                     <ul className="space-y-2 font-medium">
                         {navItems.map(item => <li key={item.to}><SidebarNavLink {...item} /></li>)}
                     </ul>
-                    <div className="mt-auto pt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-                         <a href="github://" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <div className="mt-auto pt-4 space-y-2 font-medium border-t border-secondary-light dark:border-secondary-dark">
+                         <a href="github://" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-secondary-light dark:hover:bg-secondary-dark group">
                             <GithubIcon />
                             <span className="ms-3">GitHub</span>
                         </a>
-                        <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-secondary-light dark:hover:bg-secondary-dark group">
                             <CloudflareIcon />
                             <span className="ms-3">Cloudflare</span>
                         </a>
@@ -69,7 +69,7 @@ export function Layout() {
             </main>
 
             {/* Mobile Bottom Tab Navigation */}
-            <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600 sm:hidden">
+            <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-primary-light border-t border-secondary-light dark:bg-primary-dark dark:border-secondary-dark sm:hidden">
                 <div className="grid h-full max-w-lg grid-cols-4 mx-auto font-medium">
                     {navItems.map(item => <MobileNavLink key={item.to} {...item} />)}
                 </div>

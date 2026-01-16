@@ -1,5 +1,6 @@
 import { useContext, useState, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
+import { PasswordInput } from '../components/PasswordInput';
 import { deriveKey } from '@stablelib/pbkdf2';
 import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
@@ -142,8 +143,7 @@ export function Config() {
           <div className="flex flex-col space-y-4">
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Jules API Key</span>
-              <input
-                type="password"
+              <PasswordInput
                 value={julesApiKey}
                 onChange={(e) => setJulesApiKey(e.target.value)}
                 className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
@@ -152,8 +152,7 @@ export function Config() {
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Gemini API Key</span>
-              <input
-                type="password"
+              <PasswordInput
                 value={geminiApiKey}
                 onChange={(e) => setGeminiApiKey(e.target.value)}
                 className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
@@ -201,8 +200,7 @@ export function Config() {
           <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
           <label className="flex flex-col space-y-1">
             <span className="font-medium">Encryption Password</span>
-            <input
-              type="password"
+            <PasswordInput
               value={savePassword}
               onChange={(e) => setSavePassword(e.target.value)}
               className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
@@ -231,12 +229,12 @@ export function Config() {
           <p className="text-sm text-gray-600 dark:text-gray-400">Load your encrypted settings from the browser or a file.</p>
           <label className="flex flex-col space-y-1">
             <span className="font-medium">Decryption Password</span>
-            <input
-              type="password"
+            <PasswordInput
               value={loadPassword}
               onChange={(e) => setLoadPassword(e.target.value)}
               className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
               placeholder="Enter the password to decrypt"
+              autoComplete="current-password"
             />
           </label>
           <div className="flex space-x-4">
