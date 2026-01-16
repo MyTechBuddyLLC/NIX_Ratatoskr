@@ -1,8 +1,7 @@
 import { useContext, useState, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
-import { pbkdf2 } from '@stablelib/pbkdf2';
-import { hmac } from '@stablelib/hmac';
-import { sha256 } from '@stablelib/sha256';
+import { deriveKey } from '@stablelib/pbkdf2';
+import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
 import { randomBytes } from '@stablelib/random';
 import { fromString, toString } from 'uint8arrays';
@@ -46,7 +45,7 @@ export function Config() {
       const settings = JSON.stringify({ julesApiKey, geminiApiKey, theme });
       const salt = randomBytes(16);
       const nonce = randomBytes(12);
-      const key = await pbkdf2(hmac, sha256, fromString(savePassword, 'utf8'), salt, 100000, 32);
+      const key = await deriveKey(SHA256, fromString(savePassword, 'utf8'), salt, 100000, 32);
       const cipher = new ChaCha20Poly1305(key);
       const encryptedSettings = cipher.seal(nonce, fromString(settings, 'utf8'));
 
@@ -101,7 +100,7 @@ export function Config() {
 
     try {
       const { encrypted, salt, nonce } = JSON.parse(storedSettings);
-      const key = await pbkdf2(hmac, sha256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
+      const key = await deriveKey(SHA256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
       const cipher = new ChaCha20Poly1305(key);
       const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
 
