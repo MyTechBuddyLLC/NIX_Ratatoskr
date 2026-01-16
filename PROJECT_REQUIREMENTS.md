@@ -1,55 +1,42 @@
-# Jules Anywhere PWA - Project Requirements
+# Ratatoskr PWA - Project Requirements
 
 ## Project Goal
-Build a professional, mobile-first PWA client for the Google Jules API (v1alpha) that bridges the gap between Gemini brainstorming and automated repo management.
+Build a professional, mobile-first, and installable Progressive Web App (PWA) client for the Google Jules API (v1alpha). The application, named Ratatoskr, will serve as a responsive front-end to manage Jules tasks, repositories, and AI-suggested actions.
 
 ## 1. Core Architecture & UI
-- **Tech Stack**: Preact (minimal footprint) + Tailwind CSS + Vite.
-- **Deployment**: Client-side only PWA.
+- **Tech Stack**: React (with Vite) + Tailwind CSS.
+- **PWA**: Must be installable from Chrome/Chromium browsers.
+- **Deployment**: Client-side only, deployed to Cloudflare Pages.
 - **Responsive Design**:
-  - **Mobile**: Bottom-tab navigation (Tasks, Scheduled, Config).
-  - **Desktop**: Sidebar navigation with "Stacked Card" diff views.
-- **Visuals**: Google-minimalist aesthetic (Product Sans/Roboto, clean whites, subtle shadows). Dark/Light mode support respecting system settings.
+  - **Mobile**: Bottom-tab navigation (Tasks, Suggested, Repos, Config).
+  - **Desktop**: Sidebar navigation.
+- **Visuals**: Google-minimalist aesthetic. Dark/Light mode support.
+- **Deep Links**: Logo links for GitHub and Cloudflare that attempt to open the native mobile/desktop apps first.
 
-## 2. Smart Quota & Concurrency Engine
-- **Dynamic Throttling**:
-  - Detect/Set user tier (Free vs. Pro).
-  - Implement a client-side queue in IndexedDB.
-  - For Free tier, limit active API sessions to 3. Automatically fire the next "Pending" task when an active one reaches `COMPLETED` or `FAILED`.
-- **Tier-Gating**:
-  - Visually indicate Gemini 3-only features (like multi-agent reasoning or higher parallel limits).
-  - Handle "Permission Denied" errors gracefully by offering a standard Gemini 2.5 fallback.
-
-## 3. Native Mobile Integration (The "Bridge")
-- **Web Share Target**: Configure `manifest.json` to accept `text/plain`, `url`, and `image/*`.
-  - *Workflow*: Sharing a Gemini chat or a bug screenshot to this app should pre-fill the "New Task" prompt and attach the image as context.
-- **Protocol Handler**: Register `web+jules://`. Clicking `web+jules://new?prompt=...` must launch the PWA and prepare the task.
-- **Deep Linking**: Use Universal Links/Intents (`github://` or `x-github-client://`) for all PR and repo links to prioritize native app opening over web views.
-
-## 4. Advanced Operational Features
-- **Offline-First**: Use Background Sync API. If the user hits "Send" while offline, save the task to the Outbox (IndexedDB) and sync it immediately upon reconnection.
-- **Notifications**: Implement Service Worker notifications for "Plan Ready for Review," "Task Complete," and "Jules Critic Intervention Required."
-- **Cloudflare Dash**: Integrate a view that uses the Cloudflare API to track the live build/deploy status of the Workers/Pages associated with the current repo.
-- **Scheduled Tasks**: Full CRUD UI for Jules’ proactive maintenance tasks (Listing, Deleting, and Re-creating for "edits").
-
-## 5. Security & Sync
-- **Secure API Proxy**: The PWA should talk to a Cloudflare Worker. The Worker stores the Jules API key in a Secret and adds it to requests to `jules.googleapis.com`. (Note: User has opted for a client-side only approach for the MVP).
-- **Key Sync**: Implement Chrome Storage Sync or a "Scan QR Code" feature to move the configuration from Desktop to Mobile securely without manual typing.
-
-## MVP Definition (Phase 1)
-- Create and store this requirements document in `PROJECT_REQUIREMENTS.md`.
+## 2. MVP Definition
 - **Core Functionality**:
-    - View the current list of Jules Tasks.
-    - View details for a specific task, including any messages or feedback from Jules.
-    - Create new tasks, including selecting a repository.
+    - View the list of current Jules Tasks.
+    - View the list of AI-suggested tasks from Jules.
+    - A dedicated view for repositories.
+- **State Management**: For the MVP, all state (including the API key) will be held in-memory using React Context. It will not persist between sessions.
 - **UI**:
-    - Clean, mobile-first interface based on Material Design principles.
-    - Implement a toggle for Light/Dark mode that can also respect system settings.
-- **Configuration**:
-    - Allow the user to input and save their Jules API key.
-    - Allow the user to manually select their service tier (e.g., Free/Pro) as a temporary measure.
+    - Implement the responsive layout with the four main navigation tabs.
+    - Build a placeholder UI for each of the four main views.
+    - Implement the "Config" page UI with an input for the user to provide their Jules API key.
 
-## Future Features (Post-MVP)
-- **Task Renaming**: Allow users to set a custom local alias or name for a task.
-- **Usage Reporting**: Track time spent, number of prompts, commit comments, and Jules' feedback for reporting purposes.
-- **Jules Settings Management**: Dynamically fetch and display Jules' own settings via its API, allowing users to configure them directly within the PWA.
+## 3. Future Features (Post-MVP)
+- **Hardened Key Derivation & Encryption**:
+  - Use Argon2id to derive a master key from a user-provided password.
+  - Encrypt all sensitive data (API keys, config) before storing it in `chrome.storage.sync`.
+- **Multi-Model AI Orchestrator**:
+  - Implement a "Synergy Mode" that sends prompts to multiple AI models (Gemini, Grok, Claude) in parallel.
+  - Use a master synthesis step to harmonize the results.
+  - Integrate voice input via WebSockets or REST.
+- **Task & Repo Management**:
+  - Full CRUD operations for tasks and repositories.
+  - View conversations with Jules tied to specific repos.
+- **Security Updates**:
+  - Implement a `version.json` polling hook on Cloudflare to prompt users to update the app for security patches.
+- **Offline-First & Notifications**:
+  - Use Background Sync and IndexedDB for offline capabilities.
+  - Implement Service Worker notifications for task updates.
