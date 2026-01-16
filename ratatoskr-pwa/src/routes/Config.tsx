@@ -1,8 +1,19 @@
-import { useContext } from 'react';
+import { useContext, useState, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
+import { pbkdf2 } from '@stablelib/pbkdf2';
+import { hmac } from '@stablelib/hmac';
+import { sha256 } from '@stablelib/sha256';
+import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
+import { randomBytes } from '@stablelib/random';
+import { fromString, toString } from 'uint8arrays';
 
 export function Config() {
   const context = useContext(AppContext);
+  const [savePassword, setSavePassword] = useState('');
+  const [loadPassword, setLoadPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!context) {
     return <div>Loading...</div>;
@@ -22,6 +33,104 @@ export function Config() {
     { value: 'dark', label: 'Dark' },
     { value: 'system', label: 'System' },
   ];
+
+  const handleSaveSettings = async () => {
+    if (!savePassword) {
+      setError('A password is required to save settings.');
+      setSuccess(null);
+      return;
+    }
+    setError(null);
+
+    try {
+      const settings = JSON.stringify({ julesApiKey, geminiApiKey, theme });
+      const salt = randomBytes(16);
+      const nonce = randomBytes(12);
+      const key = await pbkdf2(hmac, sha256, fromString(savePassword, 'utf8'), salt, 100000, 32);
+      const cipher = new ChaCha20Poly1305(key);
+      const encryptedSettings = cipher.seal(nonce, fromString(settings, 'utf8'));
+
+      const settingsToStore = {
+        encrypted: toString(encryptedSettings, 'base64'),
+        salt: toString(salt, 'base64'),
+        nonce: toString(nonce, 'base64'),
+      };
+
+      localStorage.setItem('ratatoskr-settings', JSON.stringify(settingsToStore));
+      setSuccess('Settings saved successfully!');
+    } catch (e) {
+      setError('Failed to save settings. Please try again.');
+      console.error(e);
+    }
+  };
+
+  const handleExportSettings = () => {
+    const storedSettings = localStorage.getItem('ratatoskr-settings');
+    if (!storedSettings) {
+      setError('No saved settings to export. Please save your settings first.');
+      setSuccess(null);
+      return;
+    }
+
+    const blob = new Blob([storedSettings], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ratatoskr-settings.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setSuccess('Settings exported!');
+    setError(null);
+  };
+
+  const handleLoadSettings = async (settingsString?: string) => {
+    if (!loadPassword) {
+      setError('A password is required to load settings.');
+      setSuccess(null);
+      return;
+    }
+    setError(null);
+
+    const storedSettings = settingsString || localStorage.getItem('ratatoskr-settings');
+    if (!storedSettings) {
+      setError('No saved settings found.');
+      return;
+    }
+
+    try {
+      const { encrypted, salt, nonce } = JSON.parse(storedSettings);
+      const key = await pbkdf2(hmac, sha256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
+      const cipher = new ChaCha20Poly1305(key);
+      const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
+
+      if (decryptedSettings) {
+        const { julesApiKey, geminiApiKey, theme } = JSON.parse(toString(decryptedSettings, 'utf8'));
+        setJulesApiKey(julesApiKey);
+        setGeminiApiKey(geminiApiKey);
+        setTheme(theme);
+        setSuccess('Settings loaded successfully!');
+      } else {
+        setError('Failed to decrypt settings. Please check your password.');
+      }
+    } catch (e) {
+      setError('Failed to load settings. The data may be corrupt or the password incorrect.');
+      console.error(e);
+    }
+  };
+
+  const handleImportFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        handleLoadSettings(content);
+      };
+      reader.readAsText(file);
+    }
+  };
 
   return (
     <div className="p-4 md:p-6">
@@ -86,6 +195,76 @@ export function Config() {
             </div>
           </div>
         </div>
+
+        {/* Save & Export Section */}
+        <div className="space-y-4 p-4 border rounded-md">
+          <h2 className="text-lg font-semibold">Save & Export Settings</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
+          <label className="flex flex-col space-y-1">
+            <span className="font-medium">Encryption Password</span>
+            <input
+              type="password"
+              value={savePassword}
+              onChange={(e) => setSavePassword(e.target.value)}
+              className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Enter a password to encrypt"
+            />
+          </label>
+          <div className="flex space-x-4">
+            <button
+              onClick={handleSaveSettings}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Save to Browser
+            </button>
+            <button
+              onClick={handleExportSettings}
+              className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600"
+            >
+              Export to File
+            </button>
+          </div>
+        </div>
+
+        {/* Load & Import Section */}
+        <div className="space-y-4 p-4 border rounded-md">
+          <h2 className="text-lg font-semibold">Load & Import Settings</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Load your encrypted settings from the browser or a file.</p>
+          <label className="flex flex-col space-y-1">
+            <span className="font-medium">Decryption Password</span>
+            <input
+              type="password"
+              value={loadPassword}
+              onChange={(e) => setLoadPassword(e.target.value)}
+              className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+              placeholder="Enter the password to decrypt"
+            />
+          </label>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleLoadSettings()}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Load from Browser
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600"
+            >
+              Import from File
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImportFile}
+              className="hidden"
+              accept=".json"
+            />
+          </div>
+        </div>
+
+        {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+        {success && <p className="text-green-500 text-sm mt-4">{success}</p>}
       </div>
     </div>
   );
