@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Define the type for a single task
 interface Task {
@@ -45,6 +45,7 @@ const mockTasks: Task[] = [
 
 export function Tasks() {
   const context = useContext(AppContext);
+  const navigate = useNavigate();
 
   if (!context) {
     return <div>Loading...</div>; // Or some other loading state
@@ -67,6 +68,10 @@ export function Tasks() {
     );
   }
 
+  const handleRowClick = (task: Task) => {
+    navigate(`/tasks/${encodeURIComponent(task.name)}`, { state: { task } });
+  };
+
   return (
     <div className="p-4 md:p-6">
       <h1 className="text-2xl font-bold mb-6">Tasks</h1>
@@ -83,7 +88,11 @@ export function Tasks() {
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {mockTasks.map((task, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                onClick={() => handleRowClick(task)}
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+              >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
