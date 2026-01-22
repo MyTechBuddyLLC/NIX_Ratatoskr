@@ -26,6 +26,10 @@ export function Config() {
     setGeminiApiKey,
     theme,
     setTheme,
+    maxSimultaneousTasks,
+    setMaxSimultaneousTasks,
+    maxDailyTasks,
+    setMaxDailyTasks,
   } = context;
 
   const themeOptions = [
@@ -43,7 +47,13 @@ export function Config() {
     setError(null);
 
     try {
-      const settings = JSON.stringify({ julesApiKey, geminiApiKey, theme });
+      const settings = JSON.stringify({
+        julesApiKey,
+        geminiApiKey,
+        theme,
+        maxSimultaneousTasks,
+        maxDailyTasks,
+      });
       const salt = randomBytes(16);
       const nonce = randomBytes(12);
       const key = await deriveKey(SHA256, fromString(savePassword, 'utf8'), salt, 100000, 32);
@@ -106,10 +116,18 @@ export function Config() {
       const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
 
       if (decryptedSettings) {
-        const { julesApiKey, geminiApiKey, theme } = JSON.parse(toString(decryptedSettings, 'utf8'));
+        const {
+          julesApiKey,
+          geminiApiKey,
+          theme,
+          maxSimultaneousTasks,
+          maxDailyTasks,
+        } = JSON.parse(toString(decryptedSettings, 'utf8'));
         setJulesApiKey(julesApiKey);
         setGeminiApiKey(geminiApiKey);
         setTheme(theme);
+        setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3); // Set default if not present
+        setMaxDailyTasks(maxDailyTasks ?? 15); // Set default if not present
         setSuccess('Settings loaded successfully!');
       } else {
         setError('Failed to decrypt settings. Please check your password.');
@@ -157,6 +175,33 @@ export function Config() {
                 onChange={(e) => setGeminiApiKey(e.target.value)}
                 className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
                 placeholder="Enter your Gemini API key"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Task Settings Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Task Settings</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className="flex flex-col space-y-1">
+              <span className="font-medium">Max Simultaneous Tasks</span>
+              <input
+                type="number"
+                value={maxSimultaneousTasks}
+                onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
+                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                placeholder="e.g., 3"
+              />
+            </label>
+            <label className="flex flex-col space-y-1">
+              <span className="font-medium">Max Daily Tasks</span>
+              <input
+                type="number"
+                value={maxDailyTasks}
+                onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
+                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                placeholder="e.g., 15"
               />
             </label>
           </div>

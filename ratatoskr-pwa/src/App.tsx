@@ -7,14 +7,18 @@ import { SuggestionDetail } from "./routes/SuggestionDetail";
 import { Repos } from "./routes/Repos";
 import { RepoDetail } from "./routes/RepoDetail";
 import { Config } from "./routes/Config";
+import { DashboardRoute } from "./routes/Dashboard";
+import { QueueRoute } from "./routes/Queue";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<Tasks />} />
+          <Route path="/" element={<DashboardRoute />} />
+          <Route path="/tasks" element={<Tasks />} />
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
+          <Route path="/queue" element={<QueueRoute />} />
           <Route path="/suggested" element={<Suggested />} />
           <Route path="/suggestions/:suggestionId" element={<SuggestionDetail />} />
           <Route path="/repos" element={<Repos />} />
