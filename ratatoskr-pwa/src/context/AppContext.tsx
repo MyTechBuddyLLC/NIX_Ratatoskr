@@ -24,7 +24,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
   const [maxSimultaneousTasks, setMaxSimultaneousTasks] = useState(3);
-  const [maxDailyTasks, setMaxDailyTasks] = useState(10);
+  const [maxDailyTasks, setMaxDailyTasks] = useState(15);
 
   useEffect(() => {
     const root = window.document.documentElement;
