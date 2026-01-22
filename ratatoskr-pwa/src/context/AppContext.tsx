@@ -9,6 +9,10 @@ interface AppContextType {
   setGeminiApiKey: (apiKey: string) => void;
   theme: string;
   setTheme: (theme: string) => void;
+  maxSimultaneousTasks: number;
+  setMaxSimultaneousTasks: (maxTasks: number) => void;
+  maxDailyTasks: number;
+  setMaxDailyTasks: (maxTasks: number) => void;
 }
 
 // Create the context with a default value
@@ -19,6 +23,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [julesApiKey, setJulesApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
+  const [maxSimultaneousTasks, setMaxSimultaneousTasks] = useState(3);
+  const [maxDailyTasks, setMaxDailyTasks] = useState(10);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -49,6 +55,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setGeminiApiKey,
     theme,
     setTheme,
+    maxSimultaneousTasks,
+    setMaxSimultaneousTasks,
+    maxDailyTasks,
+    setMaxDailyTasks,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
