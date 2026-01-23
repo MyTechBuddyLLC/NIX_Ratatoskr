@@ -24,6 +24,10 @@ export function Config() {
     setJulesApiKey,
     geminiApiKey,
     setGeminiApiKey,
+    githubApiKey,
+    setGithubApiKey,
+    cloudflareApiKey,
+    setCloudflareApiKey,
     theme,
     setTheme,
     maxSimultaneousTasks,
@@ -50,6 +54,8 @@ export function Config() {
       const settings = JSON.stringify({
         julesApiKey,
         geminiApiKey,
+        githubApiKey,
+        cloudflareApiKey,
         theme,
         maxSimultaneousTasks,
         maxDailyTasks,
@@ -119,15 +125,19 @@ export function Config() {
         const {
           julesApiKey,
           geminiApiKey,
+          githubApiKey,
+          cloudflareApiKey,
           theme,
           maxSimultaneousTasks,
           maxDailyTasks,
         } = JSON.parse(toString(decryptedSettings, 'utf8'));
         setJulesApiKey(julesApiKey);
         setGeminiApiKey(geminiApiKey);
+        setGithubApiKey(githubApiKey || '');
+        setCloudflareApiKey(cloudflareApiKey || '');
         setTheme(theme);
-        setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3); // Set default if not present
-        setMaxDailyTasks(maxDailyTasks ?? 15); // Set default if not present
+        setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3);
+        setMaxDailyTasks(maxDailyTasks ?? 15);
         setSuccess('Settings loaded successfully!');
       } else {
         setError('Failed to decrypt settings. Please check your password.');
@@ -156,15 +166,15 @@ export function Config() {
 
       <div className="space-y-8">
         {/* API Keys Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">API Keys</h2>
-          <div className="flex flex-col space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold mb-4">API Keys</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Jules API Key</span>
               <PasswordInput
                 value={julesApiKey}
                 onChange={(e) => setJulesApiKey(e.target.value)}
-                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Jules API key"
               />
             </label>
@@ -173,8 +183,26 @@ export function Config() {
               <PasswordInput
                 value={geminiApiKey}
                 onChange={(e) => setGeminiApiKey(e.target.value)}
-                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Gemini API key"
+              />
+            </label>
+            <label className="flex flex-col space-y-1">
+              <span className="font-medium">GitHub API Key</span>
+              <PasswordInput
+                value={githubApiKey}
+                onChange={(e) => setGithubApiKey(e.target.value)}
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                placeholder="Enter your GitHub API key"
+              />
+            </label>
+            <label className="flex flex-col space-y-1">
+              <span className="font-medium">Cloudflare API Key</span>
+              <PasswordInput
+                value={cloudflareApiKey}
+                onChange={(e) => setCloudflareApiKey(e.target.value)}
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                placeholder="Enter your Cloudflare API key"
               />
             </label>
           </div>
@@ -190,7 +218,7 @@ export function Config() {
                 type="number"
                 value={maxSimultaneousTasks}
                 onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="e.g., 3"
               />
             </label>
@@ -200,7 +228,7 @@ export function Config() {
                 type="number"
                 value={maxDailyTasks}
                 onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="e.g., 15"
               />
             </label>
@@ -220,8 +248,8 @@ export function Config() {
                   className={`px-4 py-2 text-sm font-medium transition-colors
                     ${
                       theme === option.value
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-secondary-dark text-foreground-dark'
+                        : 'hover:bg-secondary-light dark:hover:bg-secondary-dark'
                     }
                     ${
                       option.value === 'light'
@@ -240,7 +268,7 @@ export function Config() {
         </div>
 
         {/* Save & Export Section */}
-        <div className="space-y-4 p-4 border rounded-md">
+        <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
           <label className="flex flex-col space-y-1">
@@ -248,20 +276,20 @@ export function Config() {
             <PasswordInput
               value={savePassword}
               onChange={(e) => setSavePassword(e.target.value)}
-              className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
               placeholder="Enter a password to encrypt"
             />
           </label>
           <div className="flex space-x-4">
             <button
               onClick={handleSaveSettings}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+              className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
             >
               Save to Browser
             </button>
             <button
               onClick={handleExportSettings}
-              className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600"
+              className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
             >
               Export to File
             </button>
@@ -269,7 +297,7 @@ export function Config() {
         </div>
 
         {/* Load & Import Section */}
-        <div className="space-y-4 p-4 border rounded-md">
+        <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Load & Import Settings</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">Load your encrypted settings from the browser or a file.</p>
           <label className="flex flex-col space-y-1">
@@ -277,7 +305,7 @@ export function Config() {
             <PasswordInput
               value={loadPassword}
               onChange={(e) => setLoadPassword(e.target.value)}
-              className="p-2 border rounded bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
               placeholder="Enter the password to decrypt"
               autoComplete="current-password"
             />
@@ -285,13 +313,13 @@ export function Config() {
           <div className="flex space-x-4">
             <button
               onClick={() => handleLoadSettings()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+              className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
             >
               Load from Browser
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600"
+              className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
             >
               Import from File
             </button>
