@@ -10,6 +10,7 @@ import { fromString, toString } from 'uint8arrays';
 export function Config() {
   const context = useContext(AppContext);
   const [savePassword, setSavePassword] = useState('');
+  const [saveUnencrypted, setSaveUnencrypted] = useState(localStorage.getItem('ratatoskr-settings-unencrypted') !== null);
   const [loadPassword, setLoadPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -43,28 +44,38 @@ export function Config() {
   ];
 
   const handleSaveSettings = async () => {
+    const settingsObj = {
+      julesApiKey,
+      geminiApiKey,
+      githubApiKey,
+      cloudflareApiKey,
+      theme,
+      maxSimultaneousTasks,
+      maxDailyTasks,
+    };
+    const settingsJson = JSON.stringify(settingsObj);
+
+    if (saveUnencrypted) {
+      localStorage.setItem('ratatoskr-settings-unencrypted', settingsJson);
+      localStorage.removeItem('ratatoskr-settings');
+      setSuccess('Settings saved unencrypted for autoloading.');
+      setError(null);
+      return;
+    }
+
     if (!savePassword) {
-      setError('A password is required to save settings.');
+      setError('A password is required to save encrypted settings.');
       setSuccess(null);
       return;
     }
     setError(null);
 
     try {
-      const settings = JSON.stringify({
-        julesApiKey,
-        geminiApiKey,
-        githubApiKey,
-        cloudflareApiKey,
-        theme,
-        maxSimultaneousTasks,
-        maxDailyTasks,
-      });
       const salt = randomBytes(16);
       const nonce = randomBytes(12);
       const key = await deriveKey(SHA256, fromString(savePassword, 'utf8'), salt, 100000, 32);
       const cipher = new ChaCha20Poly1305(key);
-      const encryptedSettings = cipher.seal(nonce, fromString(settings, 'utf8'));
+      const encryptedSettings = cipher.seal(nonce, fromString(settingsJson, 'utf8'));
 
       const settingsToStore = {
         encrypted: toString(encryptedSettings, 'base64'),
@@ -73,7 +84,8 @@ export function Config() {
       };
 
       localStorage.setItem('ratatoskr-settings', JSON.stringify(settingsToStore));
-      setSuccess('Settings saved successfully!');
+      localStorage.removeItem('ratatoskr-settings-unencrypted');
+      setSuccess('Settings saved successfully (encrypted)!');
     } catch (e) {
       setError('Failed to save settings. Please try again.');
       console.error(e);
@@ -218,7 +230,7 @@ export function Config() {
                 type="number"
                 value={maxSimultaneousTasks}
                 onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 3"
               />
             </label>
@@ -228,7 +240,7 @@ export function Config() {
                 type="number"
                 value={maxDailyTasks}
                 onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 15"
               />
             </label>
@@ -271,15 +283,36 @@ export function Config() {
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
-          <label className="flex flex-col space-y-1">
-            <span className="font-medium">Encryption Password</span>
-            <PasswordInput
-              value={savePassword}
-              onChange={(e) => setSavePassword(e.target.value)}
-              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
-              placeholder="Enter a password to encrypt"
+
+          <div className="flex items-center space-x-2 mb-4">
+            <input
+              type="checkbox"
+              id="saveUnencrypted"
+              checked={saveUnencrypted}
+              onChange={(e) => setSaveUnencrypted(e.target.checked)}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
-          </label>
+            <label htmlFor="saveUnencrypted" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+              Easy automated approach (saves unencrypted)
+            </label>
+          </div>
+
+          {saveUnencrypted ? (
+            <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
+              <span className="font-medium">Warning!</span> This will store your API keys in plain text in your browser's local storage. This is less secure but allows for automatic loading.
+            </div>
+          ) : (
+            <label className="flex flex-col space-y-1">
+              <span className="font-medium">Encryption Password</span>
+              <PasswordInput
+                value={savePassword}
+                onChange={(e) => setSavePassword(e.target.value)}
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                placeholder="Enter a password to encrypt"
+              />
+            </label>
+          )}
+
           <div className="flex space-x-4">
             <button
               onClick={handleSaveSettings}
