@@ -10,6 +10,7 @@ import { fromString, toString } from 'uint8arrays';
 export function Config() {
   const context = useContext(AppContext);
   const [savePassword, setSavePassword] = useState('');
+  const [autoloadEnabled, setAutoloadEnabled] = useState(localStorage.getItem('ratatoskr-autoload-password') !== null);
   const [loadPassword, setLoadPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -44,27 +45,29 @@ export function Config() {
 
   const handleSaveSettings = async () => {
     if (!savePassword) {
-      setError('A password is required to save settings.');
+      setError('A password is required to encrypt your settings.');
       setSuccess(null);
       return;
     }
     setError(null);
 
+    const settingsObj = {
+      julesApiKey,
+      geminiApiKey,
+      githubApiKey,
+      cloudflareApiKey,
+      theme,
+      maxSimultaneousTasks,
+      maxDailyTasks,
+    };
+    const settingsJson = JSON.stringify(settingsObj);
+
     try {
-      const settings = JSON.stringify({
-        julesApiKey,
-        geminiApiKey,
-        githubApiKey,
-        cloudflareApiKey,
-        theme,
-        maxSimultaneousTasks,
-        maxDailyTasks,
-      });
       const salt = randomBytes(16);
       const nonce = randomBytes(12);
       const key = await deriveKey(SHA256, fromString(savePassword, 'utf8'), salt, 100000, 32);
       const cipher = new ChaCha20Poly1305(key);
-      const encryptedSettings = cipher.seal(nonce, fromString(settings, 'utf8'));
+      const encryptedSettings = cipher.seal(nonce, fromString(settingsJson, 'utf8'));
 
       const settingsToStore = {
         encrypted: toString(encryptedSettings, 'base64'),
@@ -73,6 +76,16 @@ export function Config() {
       };
 
       localStorage.setItem('ratatoskr-settings', JSON.stringify(settingsToStore));
+
+      if (autoloadEnabled) {
+        localStorage.setItem('ratatoskr-autoload-password', savePassword);
+      } else {
+        localStorage.removeItem('ratatoskr-autoload-password');
+      }
+
+      // Clean up old unencrypted format if it exists
+      localStorage.removeItem('ratatoskr-settings-unencrypted');
+
       setSuccess('Settings saved successfully!');
     } catch (e) {
       setError('Failed to save settings. Please try again.');
@@ -218,7 +231,7 @@ export function Config() {
                 type="number"
                 value={maxSimultaneousTasks}
                 onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 3"
               />
             </label>
@@ -228,7 +241,7 @@ export function Config() {
                 type="number"
                 value={maxDailyTasks}
                 onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 15"
               />
             </label>
@@ -271,7 +284,8 @@ export function Config() {
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
-          <label className="flex flex-col space-y-1">
+
+          <label className="flex flex-col space-y-1 mb-4">
             <span className="font-medium">Encryption Password</span>
             <PasswordInput
               value={savePassword}
@@ -280,6 +294,26 @@ export function Config() {
               placeholder="Enter a password to encrypt"
             />
           </label>
+
+          <div className="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              id="autoloadEnabled"
+              checked={autoloadEnabled}
+              onChange={(e) => setAutoloadEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            />
+            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+              Easy automated approach (saves password for autoload)
+            </label>
+          </div>
+
+          {autoloadEnabled && (
+            <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
+              <span className="font-medium">Warning!</span> This will store your encryption password in plain text in your browser's local storage. This allows for automatic loading but is less secure as anyone with access to your browser can see your API keys.
+            </div>
+          )}
+
           <div className="flex space-x-4">
             <button
               onClick={handleSaveSettings}
