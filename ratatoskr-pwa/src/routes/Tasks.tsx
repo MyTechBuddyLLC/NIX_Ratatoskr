@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { ApiKeyBanner } from '../components/ApiKeyBanner';
 
 // Define the type for a single task
 interface Task {
@@ -52,21 +53,7 @@ export function Tasks() {
   }
 
   const { julesApiKey } = context;
-
-  if (!julesApiKey) {
-    return (
-      <div className="p-4 md:p-6 text-center">
-        <h2 className="text-lg font-semibold mb-2">Welcome to Ratatoskr</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Please enter your Jules API key in the{' '}
-          <Link to="/config" className="text-blue-500 hover:underline">
-            Configuration
-          </Link>{' '}
-          page to see your tasks.
-        </p>
-      </div>
-    );
-  }
+  const tasks = julesApiKey ? mockTasks : [];
 
   const handleRowClick = (task: Task) => {
     navigate(`/tasks/${encodeURIComponent(task.name)}`, { state: { task } });
@@ -74,6 +61,7 @@ export function Tasks() {
 
   return (
     <div className="p-4 md:p-6">
+      <ApiKeyBanner />
       <h1 className="text-2xl font-bold mb-6">Tasks</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -87,27 +75,35 @@ export function Tasks() {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {mockTasks.map((task, index) => (
-              <tr
-                key={index}
-                onClick={() => handleRowClick(task)}
-                className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                    task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                  }`}>
-                    {task.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
-                <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
-                <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.latest_text}</td>
-              </tr>
-            ))}
+            {tasks.length > 0 ? (
+              tasks.map((task, index) => (
+                <tr
+                  key={index}
+                  onClick={() => handleRowClick(task)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                      task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                    }`}>
+                      {task.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.latest_text}</td>
+                </tr>
+              ))
+            ) : (
+                <tr>
+                  <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                    No tasks to display.
+                  </td>
+                </tr>
+            )}
           </tbody>
         </table>
       </div>

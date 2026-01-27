@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Queue.css';
+import { AppContext } from '../context/AppContext';
+import { ApiKeyBanner } from './ApiKeyBanner';
 
 // Define the type for a single task
 interface Task {
@@ -52,15 +53,24 @@ const mockTasks: Task[] = [
 
 
 const Queue: React.FC = () => {
+    const context = useContext(AppContext);
     const navigate = useNavigate();
-    const queuedTasks = mockTasks.filter(task => task.status === 'Pending');
+
+    if (!context) {
+      return <div>Loading...</div>; // Or some other loading state
+    }
+
+    const { julesApiKey } = context;
+    const tasks = julesApiKey ? mockTasks : [];
+    const queuedTasks = tasks.filter(task => task.status === 'Pending');
 
     const handleRowClick = (task: Task) => {
         navigate(`/tasks/${encodeURIComponent(task.name)}`, { state: { task } });
     };
 
   return (
-    <div className="queue-container p-4 md:p-6">
+    <div className="p-4 md:p-6">
+      <ApiKeyBanner />
       <h1 className="text-2xl font-bold mb-6">Queue</h1>
       <p className="mb-6 text-gray-600 dark:text-gray-400">Tasks that are waiting to be processed.</p>
       <div className="overflow-x-auto">
@@ -73,18 +83,19 @@ const Queue: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {queuedTasks.map((task, index) => (
-              <tr
-                key={index}
-                onClick={() => handleRowClick(task)}
-                className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
-                <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
-              </tr>
-            ))}
-            {queuedTasks.length === 0 && (
+            {queuedTasks.length > 0 ? (
+              queuedTasks.map((task, index) => (
+                <tr
+                  key={index}
+                  onClick={() => handleRowClick(task)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   The queue is empty.
