@@ -82,9 +82,33 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const storedSettings = localStorage.getItem('ratatoskr-settings');
-    if (storedSettings) {
-      setShowPasswordModal(true);
+    const unencrypted = localStorage.getItem('ratatoskr-settings-unencrypted');
+    if (unencrypted) {
+      try {
+        const {
+          julesApiKey,
+          geminiApiKey,
+          githubApiKey,
+          cloudflareApiKey,
+          theme,
+          maxSimultaneousTasks,
+          maxDailyTasks,
+        } = JSON.parse(unencrypted);
+        setJulesApiKey(julesApiKey);
+        setGeminiApiKey(geminiApiKey);
+        setGithubApiKey(githubApiKey || '');
+        setCloudflareApiKey(cloudflareApiKey || '');
+        setTheme(theme);
+        setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3);
+        setMaxDailyTasks(maxDailyTasks ?? 15);
+      } catch (e) {
+        console.error('Failed to load unencrypted settings:', e);
+      }
+    } else {
+      const storedSettings = localStorage.getItem('ratatoskr-settings');
+      if (storedSettings) {
+        setShowPasswordModal(true);
+      }
     }
   }, []);
 

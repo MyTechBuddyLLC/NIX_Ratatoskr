@@ -68,7 +68,8 @@ export function Layout() {
             {/* Desktop Sidebar */}
             <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
                 <div className="h-full px-3 py-4 overflow-y-auto bg-primary-light dark:bg-primary-dark flex flex-col">
-                    <a href="/" className="flex items-center ps-2.5 mb-5">
+                    <a href="/" className="flex flex-col items-center mb-5">
+                        <img src="/Ratatoskr.png" alt="Ratatoskr Logo" className="w-16 h-16 mb-2" />
                         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Ratatoskr</span>
                     </a>
                     <ul className="space-y-2 font-medium">
