@@ -10,7 +10,7 @@ import { fromString, toString } from 'uint8arrays';
 export function Config() {
   const context = useContext(AppContext);
   const [savePassword, setSavePassword] = useState('');
-  const [saveUnencrypted, setSaveUnencrypted] = useState(localStorage.getItem('ratatoskr-settings-unencrypted') !== null);
+  const [autoloadEnabled, setAutoloadEnabled] = useState(localStorage.getItem('ratatoskr-autoload-password') !== null);
   const [loadPassword, setLoadPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -44,6 +44,13 @@ export function Config() {
   ];
 
   const handleSaveSettings = async () => {
+    if (!savePassword) {
+      setError('A password is required to encrypt your settings.');
+      setSuccess(null);
+      return;
+    }
+    setError(null);
+
     const settingsObj = {
       julesApiKey,
       geminiApiKey,
@@ -54,21 +61,6 @@ export function Config() {
       maxDailyTasks,
     };
     const settingsJson = JSON.stringify(settingsObj);
-
-    if (saveUnencrypted) {
-      localStorage.setItem('ratatoskr-settings-unencrypted', settingsJson);
-      localStorage.removeItem('ratatoskr-settings');
-      setSuccess('Settings saved unencrypted for autoloading.');
-      setError(null);
-      return;
-    }
-
-    if (!savePassword) {
-      setError('A password is required to save encrypted settings.');
-      setSuccess(null);
-      return;
-    }
-    setError(null);
 
     try {
       const salt = randomBytes(16);
@@ -84,8 +76,17 @@ export function Config() {
       };
 
       localStorage.setItem('ratatoskr-settings', JSON.stringify(settingsToStore));
+
+      if (autoloadEnabled) {
+        localStorage.setItem('ratatoskr-autoload-password', savePassword);
+      } else {
+        localStorage.removeItem('ratatoskr-autoload-password');
+      }
+
+      // Clean up old unencrypted format if it exists
       localStorage.removeItem('ratatoskr-settings-unencrypted');
-      setSuccess('Settings saved successfully (encrypted)!');
+
+      setSuccess('Settings saved successfully!');
     } catch (e) {
       setError('Failed to save settings. Please try again.');
       console.error(e);
@@ -284,33 +285,33 @@ export function Config() {
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
 
-          <div className="flex items-center space-x-2 mb-4">
+          <label className="flex flex-col space-y-1 mb-4">
+            <span className="font-medium">Encryption Password</span>
+            <PasswordInput
+              value={savePassword}
+              onChange={(e) => setSavePassword(e.target.value)}
+              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+              placeholder="Enter a password to encrypt"
+            />
+          </label>
+
+          <div className="flex items-center space-x-2 mb-2">
             <input
               type="checkbox"
-              id="saveUnencrypted"
-              checked={saveUnencrypted}
-              onChange={(e) => setSaveUnencrypted(e.target.checked)}
+              id="autoloadEnabled"
+              checked={autoloadEnabled}
+              onChange={(e) => setAutoloadEnabled(e.target.checked)}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
-            <label htmlFor="saveUnencrypted" className="text-sm font-medium text-gray-900 dark:text-gray-300">
-              Easy automated approach (saves unencrypted)
+            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+              Easy automated approach (saves password for autoload)
             </label>
           </div>
 
-          {saveUnencrypted ? (
+          {autoloadEnabled && (
             <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
-              <span className="font-medium">Warning!</span> This will store your API keys in plain text in your browser's local storage. This is less secure but allows for automatic loading.
+              <span className="font-medium">Warning!</span> This will store your encryption password in plain text in your browser's local storage. This allows for automatic loading but is less secure as anyone with access to your browser can see your API keys.
             </div>
-          ) : (
-            <label className="flex flex-col space-y-1">
-              <span className="font-medium">Encryption Password</span>
-              <PasswordInput
-                value={savePassword}
-                onChange={(e) => setSavePassword(e.target.value)}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
-                placeholder="Enter a password to encrypt"
-              />
-            </label>
           )}
 
           <div className="flex space-x-4">
