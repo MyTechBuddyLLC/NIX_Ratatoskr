@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@stablelib/chacha20poly1305": "^2.0.1",
     "@stablelib/hmac": "^2.0.1",
     "@stablelib/pbkdf2": "^2.0.1",

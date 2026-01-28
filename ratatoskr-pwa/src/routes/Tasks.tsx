@@ -1,68 +1,55 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
+import type { Task } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { ApiKeyBanner } from '../components/ApiKeyBanner';
-
-// Define the type for a single task
-interface Task {
-  status: 'Completed' | 'In Progress' | 'Pending';
-  repo: string;
-  name: string;
-  initial_prompt: string;
-  latest_text: string;
-}
-
-// Mock data for the task list
-const mockTasks: Task[] = [
-  {
-    status: 'Completed',
-    repo: 'ratatoskr-pwa',
-    name: 'Initial UI setup',
-    initial_prompt: 'Create the basic layout and navigation for the PWA.',
-    latest_text: 'Finished setting up the bottom tabs and basic routing.',
-  },
-  {
-    status: 'In Progress',
-    repo: 'ratatoskr-pwa',
-    name: 'Implement theme switching',
-    initial_prompt: 'Add dark/light/system theme support.',
-    latest_text: 'Enabled class-based dark mode in Tailwind.',
-  },
-  {
-    status: 'Pending',
-    repo: 'jules-api',
-    name: 'Define task API endpoint',
-    initial_prompt: 'Create a new API endpoint to fetch user tasks.',
-    latest_text: 'Waiting on backend schema definition.',
-  },
-  {
-    status: 'Completed',
-    repo: 'another-repo/project-x',
-    name: 'Fix login bug',
-    initial_prompt: 'Users are unable to log in with special characters in their passwords.',
-    latest_text: 'Patched the authentication controller to handle special characters.',
-  },
-];
 
 export function Tasks() {
   const context = useContext(AppContext);
   const navigate = useNavigate();
+  const [showArchived, setShowArchived] = useState(false);
 
   if (!context) {
     return <div>Loading...</div>; // Or some other loading state
   }
 
-  const { julesApiKey } = context;
-  const tasks = julesApiKey ? mockTasks : [];
+  const { julesApiKey, tasks } = context;
+  const availableTasks = julesApiKey ? tasks : [];
+  const filteredTasks = availableTasks.filter(task => showArchived || !task.isArchived);
 
   const handleRowClick = (task: Task) => {
-    navigate(`/tasks/${encodeURIComponent(task.name)}`, { state: { task } });
+    navigate(`/tasks/${task.id}`, { state: { task } });
+  };
+
+  const handleNewTask = () => {
+    navigate('/tasks/new');
   };
 
   return (
     <div className="p-4 md:p-6">
       <ApiKeyBanner />
-      <h1 className="text-2xl font-bold mb-6">Tasks</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Tasks</h1>
+        <button
+          onClick={handleNewTask}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"
+        >
+          New Task
+        </button>
+      </div>
+
+      <div className="mb-4 flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="showArchived"
+          checked={showArchived}
+          onChange={(e) => setShowArchived(e.target.checked)}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+        <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+          Show Archived Tasks
+        </label>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
           <thead className="bg-gray-50 dark:bg-primary-dark">
@@ -75,10 +62,10 @@ export function Tasks() {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
-            {tasks.length > 0 ? (
-              tasks.map((task, index) => (
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task) => (
                 <tr
-                  key={index}
+                  key={task.id}
                   onClick={() => handleRowClick(task)}
                   className="hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer"
                 >

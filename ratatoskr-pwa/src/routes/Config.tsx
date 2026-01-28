@@ -35,6 +35,8 @@ export function Config() {
     setMaxSimultaneousTasks,
     maxDailyTasks,
     setMaxDailyTasks,
+    tasks,
+    repos,
   } = context;
 
   const themeOptions = [
@@ -59,6 +61,8 @@ export function Config() {
       theme,
       maxSimultaneousTasks,
       maxDailyTasks,
+      tasks,
+      repos,
     };
     const settingsJson = JSON.stringify(settingsObj);
 
@@ -310,7 +314,7 @@ export function Config() {
 
           {autoloadEnabled && (
             <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
-              <span className="font-medium">Warning!</span> This will store your encryption password in plain text in your browser's local storage. This allows for automatic loading but is less secure as anyone with access to your browser can see your API keys.
+              <span className="font-medium">Warning!</span> This will store your encryption password in plain text in your browser's local storage. This allows for automatic loading but is less secure as anyone with access to your browser can see your encryption key and decrypt sensitive saved data such as API keys.
             </div>
           )}
 
