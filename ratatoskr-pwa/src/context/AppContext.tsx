@@ -6,6 +6,25 @@ import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
 import { fromString, toString } from 'uint8arrays';
 
+export interface Task {
+  id: string;
+  status: 'Completed' | 'In Progress' | 'Pending';
+  repo: string;
+  name: string;
+  initial_prompt: string;
+  latest_text: string;
+  isArchived?: boolean;
+}
+
+export interface Repo {
+  id: string;
+  name: string;
+  description: string;
+  last_updated: string;
+  github_url?: string;
+  cloudflare_url?: string;
+}
+
 // Define the shape of the settings object for persistence
 interface AppSettings {
   julesApiKey: string;
@@ -15,6 +34,8 @@ interface AppSettings {
   theme: string;
   maxSimultaneousTasks: number;
   maxDailyTasks: number;
+  tasks: Task[];
+  repos: Repo[];
 }
 
 // Define the shape of the context data
@@ -26,12 +47,74 @@ interface AppContextType extends AppSettings {
   setTheme: (theme: string) => void;
   setMaxSimultaneousTasks: (maxTasks: number) => void;
   setMaxDailyTasks: (maxTasks: number) => void;
+  setTasks: (tasks: Task[]) => void;
+  setRepos: (repos: Repo[]) => void;
+  addTask: (task: Omit<Task, 'id'>) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  addRepo: (repo: Omit<Repo, 'id'>) => void;
+  updateRepo: (id: string, updates: Partial<Repo>) => void;
 }
 
 // Create the context with a default value
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Create the provider component
+const mockTasks: Task[] = [
+  {
+    id: '1',
+    status: 'Completed',
+    repo: 'ratatoskr-pwa',
+    name: 'Initial UI setup',
+    initial_prompt: 'Create the basic layout and navigation for the PWA.',
+    latest_text: 'Finished setting up the bottom tabs and basic routing.',
+  },
+  {
+    id: '2',
+    status: 'In Progress',
+    repo: 'ratatoskr-pwa',
+    name: 'Implement theme switching',
+    initial_prompt: 'Add dark/light/system theme support.',
+    latest_text: 'Enabled class-based dark mode in Tailwind.',
+  },
+  {
+    id: '3',
+    status: 'Pending',
+    repo: 'jules-api',
+    name: 'Define task API endpoint',
+    initial_prompt: 'Create a new API endpoint to fetch user tasks.',
+    latest_text: 'Waiting on backend schema definition.',
+  },
+  {
+    id: '4',
+    status: 'Completed',
+    repo: 'another-repo/project-x',
+    name: 'Fix login bug',
+    initial_prompt: 'Users are unable to log in with special characters in their passwords.',
+    latest_text: 'Patched the authentication controller to handle special characters.',
+  },
+];
+
+const mockRepos: Repo[] = [
+  {
+    id: '1',
+    name: 'ratatoskr-pwa',
+    description: 'A PWA client for the Jules API.',
+    last_updated: '2024-07-29T10:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'jules-api',
+    description: 'The backend API for the Jules agent.',
+    last_updated: '2024-07-28T15:30:00Z',
+  },
+  {
+    id: '3',
+    name: 'another-repo/project-x',
+    description: 'A top-secret project.',
+    last_updated: '2024-07-25T12:00:00Z',
+  },
+];
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [julesApiKey, setJulesApiKey] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
@@ -40,6 +123,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
   const [maxSimultaneousTasks, setMaxSimultaneousTasks] = useState(3);
   const [maxDailyTasks, setMaxDailyTasks] = useState(15);
+  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [repos, setRepos] = useState<Repo[]>(mockRepos);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const loadSettings = async (password: string) => {
@@ -63,6 +148,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           theme,
           maxSimultaneousTasks,
           maxDailyTasks,
+          tasks,
+          repos,
         } = JSON.parse(toString(decryptedSettings, 'utf8'));
         setJulesApiKey(julesApiKey);
         setGeminiApiKey(geminiApiKey);
@@ -71,6 +158,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setTheme(theme);
         setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3);
         setMaxDailyTasks(maxDailyTasks ?? 15);
+        setTasks(tasks || []);
+        setRepos(repos || []);
         setShowPasswordModal(false);
       } else {
         alert('Failed to decrypt settings. Please check your password.');
@@ -139,6 +228,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
+  const addTask = (task: Omit<Task, 'id'>) => {
+    const newTask = { ...task, id: crypto.randomUUID() };
+    setTasks([...tasks, newTask]);
+  };
+
+  const updateTask = (id: string, updates: Partial<Task>) => {
+    setTasks(tasks.map((t) => (t.id === id ? { ...t, ...updates } : t)));
+  };
+
+  const addRepo = (repo: Omit<Repo, 'id'>) => {
+    const newRepo = { ...repo, id: crypto.randomUUID() };
+    setRepos([...repos, newRepo]);
+  };
+
+  const updateRepo = (id: string, updates: Partial<Repo>) => {
+    setRepos(repos.map((r) => (r.id === id ? { ...r, ...updates } : r)));
+  };
+
   const value = {
     julesApiKey,
     setJulesApiKey,
@@ -154,6 +261,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setMaxSimultaneousTasks,
     maxDailyTasks,
     setMaxDailyTasks,
+    tasks,
+    setTasks,
+    repos,
+    setRepos,
+    addTask,
+    updateTask,
+    addRepo,
+    updateRepo,
   };
 
   return (
