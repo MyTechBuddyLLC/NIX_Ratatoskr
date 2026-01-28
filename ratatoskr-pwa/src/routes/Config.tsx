@@ -44,6 +44,25 @@ export function Config() {
   ];
 
   const handleSaveSettings = async () => {
+    const settingsObj = {
+      julesApiKey,
+      geminiApiKey,
+      githubApiKey,
+      cloudflareApiKey,
+      theme,
+      maxSimultaneousTasks,
+      maxDailyTasks,
+    };
+    const settingsJson = JSON.stringify(settingsObj);
+
+    if (saveUnencrypted) {
+      localStorage.setItem('ratatoskr-settings-unencrypted', settingsJson);
+      localStorage.removeItem('ratatoskr-settings');
+      setSuccess('Settings saved unencrypted for autoloading.');
+      setError(null);
+      return;
+    }
+
     if (!savePassword) {
       setError('A password is required to encrypt your settings.');
       setSuccess(null);
