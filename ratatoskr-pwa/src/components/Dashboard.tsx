@@ -1,48 +1,8 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
+import type { Task } from '../context/AppContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiKeyBanner } from './ApiKeyBanner';
-
-// Define the type for a single task
-interface Task {
-  status: 'Completed' | 'In Progress' | 'Pending';
-  repo: string;
-  name: string;
-  initial_prompt: string;
-  latest_text: string;
-}
-
-// Mock data for the task list
-const mockTasks: Task[] = [
-  {
-    status: 'Completed',
-    repo: 'ratatoskr-pwa',
-    name: 'Initial UI setup',
-    initial_prompt: 'Create the basic layout and navigation for the PWA.',
-    latest_text: 'Finished setting up the bottom tabs and basic routing.',
-  },
-  {
-    status: 'In Progress',
-    repo: 'ratatoskr-pwa',
-    name: 'Implement theme switching',
-    initial_prompt: 'Add dark/light/system theme support.',
-    latest_text: 'Enabled class-based dark mode in Tailwind.',
-  },
-  {
-    status: 'Pending',
-    repo: 'jules-api',
-    name: 'Define task API endpoint',
-    initial_prompt: 'Create a new API endpoint to fetch user tasks.',
-    latest_text: 'Waiting on backend schema definition.',
-  },
-  {
-    status: 'Completed',
-    repo: 'another-repo/project-x',
-    name: 'Fix login bug',
-    initial_prompt: 'Users are unable to log in with special characters in their passwords.',
-    latest_text: 'Patched the authentication controller to handle special characters.',
-  },
-];
 
 const Dashboard: React.FC = () => {
   const context = useContext(AppContext);
@@ -52,15 +12,15 @@ const Dashboard: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const { julesApiKey, maxSimultaneousTasks, maxDailyTasks } = context;
+  const { julesApiKey, maxSimultaneousTasks, maxDailyTasks, tasks } = context;
 
-  const tasks = julesApiKey ? mockTasks : [];
-  const activeTasks = tasks.filter(task => task.status === 'In Progress');
-  const queuedTasks = tasks.filter(task => task.status === 'Pending');
-  const completedToday = tasks.filter(task => task.status === 'Completed').length;
+  const availableTasks = julesApiKey ? tasks : [];
+  const activeTasks = availableTasks.filter(task => task.status === 'In Progress' && !task.isArchived);
+  const queuedTasks = availableTasks.filter(task => task.status === 'Pending' && !task.isArchived);
+  const completedToday = availableTasks.filter(task => task.status === 'Completed' && !task.isArchived).length;
 
   const handleRowClick = (task: Task) => {
-    navigate(`/tasks/${encodeURIComponent(task.name)}`, { state: { task } });
+    navigate(`/tasks/${task.id}`, { state: { task } });
   };
 
   return (
@@ -95,9 +55,9 @@ const Dashboard: React.FC = () => {
             </thead>
             <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
               {activeTasks.length > 0 ? (
-                activeTasks.map((task, index) => (
+                activeTasks.map((task) => (
                   <tr
-                    key={index}
+                    key={task.id}
                     onClick={() => handleRowClick(task)}
                     className="hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer"
                   >
