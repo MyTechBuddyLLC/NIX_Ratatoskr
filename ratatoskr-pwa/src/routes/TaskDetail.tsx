@@ -1,7 +1,6 @@
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
-import type { Task } from '../context/AppContext';
 import PromptHistoryItem from '../components/PromptHistoryItem';
 
 const mockHistory = [

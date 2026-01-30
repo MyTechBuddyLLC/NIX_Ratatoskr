@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
-import type { Repo } from '../context/AppContext';
 
 export function RepoDetail() {
   const { repoId } = useParams<{ repoId: string }>();
