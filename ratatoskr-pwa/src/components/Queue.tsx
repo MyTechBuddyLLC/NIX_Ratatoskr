@@ -92,7 +92,7 @@ const Queue: React.FC = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           onClick={() => handleRowClick(task)}
-                          className={`hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer border-l-4 border-transparent ${snapshot.isDragging ? 'bg-blue-50 dark:bg-blue-900/20 shadow-lg border-blue-400' : ''}`}
+                          className={`hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer border-l-4 border-transparent ${snapshot.isDragging ? 'bg-secondary-light dark:bg-secondary-dark shadow-lg border-gray-400' : ''}`}
                         >
                           <td className="px-6 py-4 w-10 text-center" {...provided.dragHandleProps}>
                             <span className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing">☰</span>

@@ -1,13 +1,25 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 import type { Task } from '../context/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ApiKeyBanner } from '../components/ApiKeyBanner';
 
 export function Tasks() {
   const context = useContext(AppContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [showArchived, setShowArchived] = useState(false);
+  const [activeOnly, setActiveOnly] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.filter === 'active') {
+      setActiveOnly(true);
+      setShowArchived(false);
+    } else if (location.state?.filter === 'daily') {
+      setActiveOnly(false);
+      setShowArchived(false);
+    }
+  }, [location.state]);
 
   if (!context) {
     return <div>Loading...</div>; // Or some other loading state
@@ -15,7 +27,12 @@ export function Tasks() {
 
   const { julesApiKey, tasks } = context;
   const availableTasks = julesApiKey ? tasks : [];
-  const filteredTasks = availableTasks.filter(task => showArchived || !task.isArchived);
+
+  const filteredTasks = availableTasks.filter(task => {
+    if (activeOnly && task.status !== 'In Progress') return false;
+    if (!showArchived && task.isArchived) return false;
+    return true;
+  });
 
   const handleRowClick = (task: Task) => {
     navigate(`/tasks/${task.id}`, { state: { task } });
@@ -38,18 +55,33 @@ export function Tasks() {
         </button>
       </div>
 
-      <div className="mb-4 flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="showArchived"
-          checked={showArchived}
-          onChange={(e) => setShowArchived(e.target.checked)}
-          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-        />
-        <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-gray-300">
-          Show Archived Tasks
-        </label>
+      <div className="mb-4 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-6">
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="showArchived"
+            checked={showArchived}
+            onChange={(e) => setShowArchived(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+            Show Archived Tasks
+          </label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="activeOnly"
+            checked={activeOnly}
+            onChange={(e) => setActiveOnly(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <label htmlFor="activeOnly" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+            Active Only
+          </label>
+        </div>
       </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
           <thead className="bg-gray-50 dark:bg-primary-dark">
@@ -87,7 +119,7 @@ export function Tasks() {
             ) : (
                 <tr>
                   <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-gray-400">
-                    No tasks to display.
+                    No tasks match the current filters.
                   </td>
                 </tr>
             )}

@@ -28,11 +28,17 @@ const Dashboard: React.FC = () => {
       <ApiKeyBanner />
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-primary-light dark:bg-primary-dark p-6 rounded-lg shadow">
+        <div
+          onClick={() => navigate('/tasks', { state: { filter: 'active' } })}
+          className="bg-primary-light dark:bg-primary-dark p-6 rounded-lg shadow cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+        >
           <h2 className="text-lg font-semibold mb-2">Current Sessions</h2>
           <p className="text-3xl font-bold">{activeTasks.length} / {maxSimultaneousTasks}</p>
         </div>
-        <div className="bg-primary-light dark:bg-primary-dark p-6 rounded-lg shadow">
+        <div
+          onClick={() => navigate('/tasks', { state: { filter: 'daily' } })}
+          className="bg-primary-light dark:bg-primary-dark p-6 rounded-lg shadow cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+        >
           <h2 className="text-lg font-semibold mb-2">Daily Sessions</h2>
           <p className="text-3xl font-bold">{completedToday} / {maxDailyTasks}</p>
         </div>
