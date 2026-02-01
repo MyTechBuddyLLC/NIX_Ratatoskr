@@ -125,7 +125,8 @@ export function Config() {
       const sqliteBinary = await createSqliteDb(settingsObj);
       const encryptedPackage = await createEncryptedPackage(sqliteBinary, savePassword, exportAlgorithm);
 
-      const blob = new Blob([encryptedPackage], { type: 'application/octet-stream' });
+      // Use any cast to avoid TS incompatibility between Uint8Array<ArrayBufferLike> and BlobPart
+      const blob = new Blob([encryptedPackage as any], { type: 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
