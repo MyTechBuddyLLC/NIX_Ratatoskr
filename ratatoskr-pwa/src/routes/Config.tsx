@@ -6,12 +6,16 @@ import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
 import { randomBytes } from '@stablelib/random';
 import { fromString, toString } from 'uint8arrays';
+import { createSqliteDb, parseSqliteDb } from '../utils/sqlite';
+import { createEncryptedPackage, decryptPackage } from '../utils/encryption';
+import type { EncryptionAlgorithm } from '../utils/encryption';
 
 export function Config() {
   const context = useContext(AppContext);
   const [savePassword, setSavePassword] = useState('');
   const [autoloadEnabled, setAutoloadEnabled] = useState(localStorage.getItem('ratatoskr-autoload-password') !== null);
   const [loadPassword, setLoadPassword] = useState('');
+  const [exportAlgorithm, setExportAlgorithm] = useState<EncryptionAlgorithm>('CHACHA20');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,35 +94,55 @@ export function Config() {
       // Clean up old unencrypted format if it exists
       localStorage.removeItem('ratatoskr-settings-unencrypted');
 
-      setSuccess('Settings saved successfully!');
+      setSuccess('Settings saved successfully to browser!');
     } catch (e) {
       setError('Failed to save settings. Please try again.');
       console.error(e);
     }
   };
 
-  const handleExportSettings = () => {
-    const storedSettings = localStorage.getItem('ratatoskr-settings');
-    if (!storedSettings) {
-      setError('No saved settings to export. Please save your settings first.');
+  const handleExportSettings = async () => {
+    if (!savePassword) {
+      setError('A password is required to encrypt your settings for export.');
       setSuccess(null);
       return;
     }
-
-    const blob = new Blob([storedSettings], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ratatoskr-settings.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setSuccess('Settings exported!');
     setError(null);
+
+    const settingsObj = {
+      julesApiKey,
+      geminiApiKey,
+      githubApiKey,
+      cloudflareApiKey,
+      theme,
+      maxSimultaneousTasks,
+      maxDailyTasks,
+      tasks,
+      repos,
+    };
+
+    try {
+      const sqliteBinary = await createSqliteDb(settingsObj);
+      const encryptedPackage = await createEncryptedPackage(sqliteBinary, savePassword, exportAlgorithm);
+
+      const blob = new Blob([encryptedPackage], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ratatoskr-settings-${exportAlgorithm.toLowerCase().replace('-gcm', '')}.rata`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setSuccess(`Settings exported using ${exportAlgorithm}!`);
+      setError(null);
+    } catch (e) {
+      setError('Failed to export settings.');
+      console.error(e);
+    }
   };
 
-  const handleLoadSettings = async (settingsString?: string) => {
+  const handleLoadSettings = async (fileData?: Uint8Array) => {
     if (!loadPassword) {
       setError('A password is required to load settings.');
       setSuccess(null);
@@ -126,38 +150,50 @@ export function Config() {
     }
     setError(null);
 
-    const storedSettings = settingsString || localStorage.getItem('ratatoskr-settings');
-    if (!storedSettings) {
-      setError('No saved settings found.');
-      return;
-    }
-
     try {
-      const { encrypted, salt, nonce } = JSON.parse(storedSettings);
-      const key = await deriveKey(SHA256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
-      const cipher = new ChaCha20Poly1305(key);
-      const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
+      let settingsObj: any;
 
-      if (decryptedSettings) {
-        const {
-          julesApiKey,
-          geminiApiKey,
-          githubApiKey,
-          cloudflareApiKey,
-          theme,
-          maxSimultaneousTasks,
-          maxDailyTasks,
-        } = JSON.parse(toString(decryptedSettings, 'utf8'));
-        setJulesApiKey(julesApiKey);
-        setGeminiApiKey(geminiApiKey);
-        setGithubApiKey(githubApiKey || '');
-        setCloudflareApiKey(cloudflareApiKey || '');
-        setTheme(theme);
-        setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3);
-        setMaxDailyTasks(maxDailyTasks ?? 15);
-        setSuccess('Settings loaded successfully!');
+      if (fileData) {
+        // Try new package format first
+        try {
+          const sqliteBinary = await decryptPackage(fileData, loadPassword);
+          settingsObj = await parseSqliteDb(sqliteBinary);
+        } catch (e) {
+          // Fallback to old format (JSON string in the file)
+          const decoder = new TextDecoder();
+          const jsonStr = decoder.decode(fileData);
+          const { encrypted, salt, nonce } = JSON.parse(jsonStr);
+          const key = await deriveKey(SHA256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
+          const cipher = new ChaCha20Poly1305(key);
+          const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
+          if (!decryptedSettings) throw new Error("Invalid password or format");
+          settingsObj = JSON.parse(toString(decryptedSettings, 'utf8'));
+        }
       } else {
-        setError('Failed to decrypt settings. Please check your password.');
+        const storedSettings = localStorage.getItem('ratatoskr-settings');
+        if (!storedSettings) {
+          setError('No saved settings found in browser.');
+          return;
+        }
+        const { encrypted, salt, nonce } = JSON.parse(storedSettings);
+        const key = await deriveKey(SHA256, fromString(loadPassword, 'utf8'), fromString(salt, 'base64'), 100000, 32);
+        const cipher = new ChaCha20Poly1305(key);
+        const decryptedSettings = cipher.open(fromString(nonce, 'base64'), fromString(encrypted, 'base64'));
+        if (!decryptedSettings) throw new Error("Invalid password");
+        settingsObj = JSON.parse(toString(decryptedSettings, 'utf8'));
+      }
+
+      if (settingsObj) {
+        setJulesApiKey(settingsObj.julesApiKey || '');
+        setGeminiApiKey(settingsObj.geminiApiKey || '');
+        setGithubApiKey(settingsObj.githubApiKey || '');
+        setCloudflareApiKey(settingsObj.cloudflareApiKey || '');
+        setTheme(settingsObj.theme || 'system');
+        setMaxSimultaneousTasks(settingsObj.maxSimultaneousTasks ?? 3);
+        setMaxDailyTasks(settingsObj.maxDailyTasks ?? 15);
+        if (settingsObj.tasks) context.setTasks(settingsObj.tasks);
+        if (settingsObj.repos) context.setRepos(settingsObj.repos);
+        setSuccess('Settings loaded successfully!');
       }
     } catch (e) {
       setError('Failed to load settings. The data may be corrupt or the password incorrect.');
@@ -170,10 +206,10 @@ export function Config() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const content = e.target?.result as string;
-        handleLoadSettings(content);
+        const content = e.target?.result as ArrayBuffer;
+        handleLoadSettings(new Uint8Array(content));
       };
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
     }
   };
 
@@ -287,7 +323,7 @@ export function Config() {
         {/* Save & Export Section */}
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a file.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a secure SQLite package file.</p>
 
           <label className="flex flex-col space-y-1 mb-4">
             <span className="font-medium">Encryption Password</span>
@@ -318,19 +354,29 @@ export function Config() {
             </div>
           )}
 
-          <div className="flex space-x-4">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <button
               onClick={handleSaveSettings}
               className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
             >
               Save to Browser
             </button>
-            <button
-              onClick={handleExportSettings}
-              className="px-4 py-2 text-sm font-medium rounded-md bg-primary-light dark:bg-primary-dark border border-secondary-light dark:border-secondary-dark hover:bg-secondary-light dark:hover:bg-secondary-dark"
-            >
-              Export to File
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleExportSettings}
+                className="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                Export Package
+              </button>
+              <select
+                value={exportAlgorithm}
+                onChange={(e) => setExportAlgorithm(e.target.value as EncryptionAlgorithm)}
+                className="p-2 text-sm border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
+              >
+                <option value="CHACHA20">ChaCha20</option>
+                <option value="AES-256-GCM">AES-256</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -366,7 +412,7 @@ export function Config() {
               ref={fileInputRef}
               onChange={handleImportFile}
               className="hidden"
-              accept=".json"
+              accept=".rata,.json"
             />
           </div>
         </div>
