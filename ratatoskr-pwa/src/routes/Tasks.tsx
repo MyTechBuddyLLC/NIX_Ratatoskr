@@ -62,9 +62,9 @@ export function Tasks() {
             id="showArchived"
             checked={showArchived}
             onChange={(e) => setShowArchived(e.target.checked)}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
           />
-          <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+          <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-foreground-dark">
             Show Archived Tasks
           </label>
         </div>
@@ -74,9 +74,9 @@ export function Tasks() {
             id="activeOnly"
             checked={activeOnly}
             onChange={(e) => setActiveOnly(e.target.checked)}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
           />
-          <label htmlFor="activeOnly" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+          <label htmlFor="activeOnly" className="text-sm font-medium text-gray-900 dark:text-foreground-dark">
             Active Only
           </label>
         </div>
@@ -86,11 +86,11 @@ export function Tasks() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
           <thead className="bg-gray-50 dark:bg-primary-dark">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Repo</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Initial Prompt</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Latest Text</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Repo</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Initial Prompt</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Latest Text</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
@@ -105,20 +105,20 @@ export function Tasks() {
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
                       task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      'bg-gray-100 text-gray-800 dark:bg-secondary-dark dark:text-foreground-muted-dark'
                     }`}>
                       {task.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.latest_text}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-foreground-muted-dark">{task.repo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-foreground-dark">{task.name}</td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-foreground-muted-dark max-w-xs truncate">{task.initial_prompt}</td>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-foreground-muted-dark max-w-xs truncate">{task.latest_text}</td>
                 </tr>
               ))
             ) : (
                 <tr>
-                  <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                  <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-foreground-muted-dark">
                     No tasks match the current filters.
                   </td>
                 </tr>

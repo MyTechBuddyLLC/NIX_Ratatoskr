@@ -114,22 +114,22 @@ export function TaskDetail() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col space-y-1">
-            <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">Status</span>
+            <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">Status</span>
             {!isNew ? (
               <span className={`px-2 w-fit inline-flex text-xs leading-5 font-semibold rounded-full ${
                 task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
                 task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                'bg-gray-100 text-gray-800 dark:bg-secondary-dark dark:text-foreground-muted-dark'
               }`}>
                 {task.status}
               </span>
             ) : (
-                <span className="text-sm text-gray-600 dark:text-gray-400">Pending (New)</span>
+                <span className="text-sm text-gray-600 dark:text-foreground-muted-dark">Pending (New)</span>
             )}
           </div>
 
           <div className="flex flex-col space-y-1">
-            <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">Repository</span>
+            <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">Repository</span>
             {isEditing ? (
               <select
                 value={repo}
@@ -148,12 +148,12 @@ export function TaskDetail() {
         </div>
 
         <div className="flex flex-col space-y-1">
-          <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">Initial Prompt</span>
+          <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">Initial Prompt</span>
           {isEditing ? (
             <textarea
               value={initialPrompt}
               onChange={(e) => setInitialPrompt(e.target.value)}
-              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark h-32 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark h-32 focus:ring-1 focus:ring-blue-500 outline-none text-foreground-light dark:text-foreground-dark"
               placeholder="Describe what needs to be done..."
             />
           ) : (
@@ -172,7 +172,7 @@ export function TaskDetail() {
               </button>
               <button
                 onClick={() => isNew ? navigate('/tasks') : setIsEditing(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md text-sm font-medium transition-colors"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-secondary-dark dark:hover:bg-primary-dark rounded-md text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -194,7 +194,7 @@ export function TaskDetail() {
         {!isNew && (
           <div>
             <h3 className="font-semibold text-lg mt-8 mb-4">Prompt History</h3>
-            <div className="border rounded-md overflow-hidden dark:border-gray-700">
+            <div className="border rounded-md overflow-hidden dark:border-secondary-dark">
               {mockHistory.map((item, index) => (
                 <PromptHistoryItem
                   key={index}

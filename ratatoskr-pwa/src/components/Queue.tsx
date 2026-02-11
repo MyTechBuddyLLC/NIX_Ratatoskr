@@ -41,17 +41,17 @@ const Queue: React.FC = () => {
     <div className="p-4 md:p-6">
       <ApiKeyBanner />
       <h1 className="text-2xl font-bold mb-6">Queue</h1>
-      <p className="mb-6 text-gray-600 dark:text-gray-400">Tasks that are waiting to be processed. Drag the ☰ handle to reorder pending tasks.</p>
+      <p className="mb-6 text-gray-600 dark:text-foreground-muted-dark">Tasks that are waiting to be processed. Drag the ☰ handle to reorder pending tasks.</p>
 
       <div className="overflow-x-auto">
         <DragDropContext onDragEnd={onDragEnd}>
           <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
             <thead className="bg-gray-50 dark:bg-primary-dark">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10"></th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Repo</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider w-10"></th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Status</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Repo</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
               </tr>
             </thead>
 
@@ -63,7 +63,7 @@ const Queue: React.FC = () => {
                   onClick={() => handleRowClick(task)}
                   className="hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer border-l-4 border-yellow-400"
                 >
-                  <td className="px-6 py-4 text-center text-gray-300">
+                  <td className="px-6 py-4 text-center text-gray-300 dark:text-foreground-muted-dark opacity-50">
                     <span title="In Progress tasks cannot be reordered">🔒</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -71,8 +71,8 @@ const Queue: React.FC = () => {
                       {task.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-foreground-muted-dark">{task.repo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-foreground-dark">{task.name}</td>
                 </tr>
               ))}
             </tbody>
@@ -95,15 +95,15 @@ const Queue: React.FC = () => {
                           className={`hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer border-l-4 border-transparent ${snapshot.isDragging ? 'bg-secondary-light dark:bg-secondary-dark shadow-lg border-gray-400' : ''}`}
                         >
                           <td className="px-6 py-4 w-10 text-center" {...provided.dragHandleProps}>
-                            <span className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing">☰</span>
+                            <span className="text-gray-400 hover:text-gray-600 dark:text-foreground-muted-dark cursor-grab active:cursor-grabbing">☰</span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-secondary-dark dark:text-foreground-muted-dark">
                               {task.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-foreground-muted-dark">{task.repo}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-foreground-dark">{task.name}</td>
                         </tr>
                       )}
                     </Draggable>
@@ -111,7 +111,7 @@ const Queue: React.FC = () => {
                   {provided.placeholder}
                   {activeTasks.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                      <td colSpan={4} className="px-6 py-10 text-center text-gray-500 dark:text-foreground-muted-dark">
                         The queue is empty.
                       </td>
                     </tr>

@@ -90,12 +90,12 @@ export function RepoDetail() {
 
       <div className="space-y-6">
         <div className="flex flex-col space-y-1">
-          <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">Description</span>
+          <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">Description</span>
           {isEditing ? (
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none"
+              className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none text-foreground-light dark:text-foreground-dark"
               placeholder="Repo description..."
             />
           ) : (
@@ -105,36 +105,36 @@ export function RepoDetail() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col space-y-1">
-            <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">GitHub URL</span>
+            <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">GitHub URL</span>
             {isEditing ? (
               <input
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none text-foreground-light dark:text-foreground-dark"
                 placeholder="https://github.com/..."
               />
             ) : (
                 repo.github_url ? (
                     <a href={repo.github_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">{repo.github_url}</a>
                 ) : (
-                    <span className="text-sm text-gray-500 italic">None provided</span>
+                    <span className="text-sm text-gray-500 dark:text-foreground-muted-dark italic">None provided</span>
                 )
             )}
           </div>
           <div className="flex flex-col space-y-1">
-            <span className="font-semibold text-sm text-gray-500 dark:text-gray-400">Cloudflare URL</span>
+            <span className="font-semibold text-sm text-gray-500 dark:text-foreground-muted-dark">Cloudflare URL</span>
             {isEditing ? (
               <input
                 value={cloudflareUrl}
                 onChange={(e) => setCloudflareUrl(e.target.value)}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none text-foreground-light dark:text-foreground-dark"
                 placeholder="https://dash.cloudflare.com/..."
               />
             ) : (
                 repo.cloudflare_url ? (
                     <a href={repo.cloudflare_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">{repo.cloudflare_url}</a>
                 ) : (
-                    <span className="text-sm text-gray-500 italic">None provided</span>
+                    <span className="text-sm text-gray-500 dark:text-foreground-muted-dark italic">None provided</span>
                 )
             )}
           </div>
@@ -151,7 +151,7 @@ export function RepoDetail() {
               </button>
               <button
                 onClick={() => isNew ? navigate('/repos') : setIsEditing(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-md text-sm font-medium transition-colors"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-secondary-dark dark:hover:bg-primary-dark rounded-md text-sm font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -162,7 +162,7 @@ export function RepoDetail() {
                 href={repo.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-900 ${!repo.github_url && 'opacity-50 cursor-not-allowed pointer-events-none'}`}
+                className={`px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-primary-dark dark:hover:bg-secondary-dark rounded-md hover:bg-gray-900 ${!repo.github_url && 'opacity-50 cursor-not-allowed pointer-events-none'}`}
               >
                 View on GitHub
               </a>
@@ -196,9 +196,9 @@ export function RepoDetail() {
                 id="showArchivedRepo"
                 checked={showArchived}
                 onChange={(e) => setShowArchived(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
               />
-              <label htmlFor="showArchivedRepo" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+              <label htmlFor="showArchivedRepo" className="text-sm font-medium text-gray-900 dark:text-foreground-dark">
                 Show Archived Tasks
               </label>
             </div>
@@ -207,9 +207,9 @@ export function RepoDetail() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
                 <thead className="bg-gray-50 dark:bg-primary-dark">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Latest Text</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Latest Text</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
@@ -224,18 +224,18 @@ export function RepoDetail() {
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
                             task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            'bg-gray-100 text-gray-800 dark:bg-secondary-dark dark:text-foreground-muted-dark'
                           }`}>
                             {task.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
-                        <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.latest_text}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-foreground-dark">{task.name}</td>
+                        <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-foreground-muted-dark max-w-xs truncate">{task.latest_text}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={3} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                      <td colSpan={3} className="text-center py-10 text-gray-500 dark:text-foreground-muted-dark">
                         No tasks for this repository.
                       </td>
                     </tr>

@@ -14,6 +14,7 @@ export default {
         'secondary-light': '#E0E0E0',
         'background-dark': '#121212',
         'foreground-dark': '#E0E0E0',
+        'foreground-muted-dark': '#999999',
         'primary-dark': '#1E1E1E',
         'secondary-dark': '#2C2C2C',
       },
