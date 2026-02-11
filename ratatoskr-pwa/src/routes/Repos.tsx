@@ -38,29 +38,29 @@ export function Repos() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
           <thead className="bg-gray-50 dark:bg-primary-dark">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Updated</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Description</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Last Updated</th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
             {availableRepos.length > 0 ? (
               availableRepos.map((repo) => (
                 <tr key={repo.id} onClick={() => handleRowClick(repo.id)} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-primary-dark">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-foreground-dark">
                     {repo.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-foreground-muted-dark">
                     {repo.description}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-foreground-muted-dark">
                     {new Date(repo.last_updated).toLocaleString()}
                   </td>
                 </tr>
               ))
             ) : (
                 <tr>
-                    <td colSpan={3} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                    <td colSpan={3} className="text-center py-10 text-gray-500 dark:text-foreground-muted-dark">
                         No repositories to display.
                     </td>
                 </tr>

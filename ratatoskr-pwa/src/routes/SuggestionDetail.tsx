@@ -22,7 +22,7 @@ export function SuggestionDetail() {
         <div>
           <span className="font-semibold">Source:</span> {suggestion.source}
         </div>
-        <div className="p-4 border rounded bg-gray-50 dark:bg-gray-800">
+        <div className="p-4 border rounded bg-gray-50 dark:bg-primary-dark dark:border-secondary-dark">
           <p>{suggestion.description}</p>
         </div>
         <div className="mt-6">
