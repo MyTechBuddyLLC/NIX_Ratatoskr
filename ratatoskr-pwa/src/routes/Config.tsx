@@ -272,7 +272,7 @@ export function Config() {
                 type="number"
                 value={maxSimultaneousTasks}
                 onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-background-light dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 3"
               />
             </label>
@@ -282,7 +282,7 @@ export function Config() {
                 type="number"
                 value={maxDailyTasks}
                 onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-background-light dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 15"
               />
             </label>
@@ -294,7 +294,7 @@ export function Config() {
           <h2 className="text-lg font-semibold">Appearance</h2>
           <div>
             <span className="font-medium">Theme</span>
-            <div className="mt-2 flex rounded-md border border-gray-300 dark:border-secondary-dark w-min">
+            <div className="mt-2 flex rounded-md border border-secondary-light dark:border-secondary-dark w-min overflow-hidden">
               {themeOptions.map((option) => (
                 <button
                   key={option.value}
@@ -324,7 +324,7 @@ export function Config() {
         {/* Save & Export Section */}
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
-          <p className="text-sm text-gray-600 dark:text-foreground-muted-dark">Encrypt and save your settings to the browser or a secure SQLite package file.</p>
+          <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark">Encrypt and save your settings to the browser or a secure SQLite package file.</p>
 
           <label className="flex flex-col space-y-1 mb-4">
             <span className="font-medium">Encryption Password</span>
@@ -342,9 +342,9 @@ export function Config() {
               id="autoloadEnabled"
               checked={autoloadEnabled}
               onChange={(e) => setAutoloadEnabled(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
+              className="w-4 h-4 text-blue-600 bg-secondary-light border-secondary-light rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-background-dark focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
             />
-            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-gray-900 dark:text-foreground-dark">
+            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-foreground-light dark:text-foreground-dark">
               Easy automated approach (saves password for autoload)
             </label>
           </div>
@@ -384,7 +384,7 @@ export function Config() {
         {/* Load & Import Section */}
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Load & Import Settings</h2>
-          <p className="text-sm text-gray-600 dark:text-foreground-muted-dark">Load your encrypted settings from the browser or a file.</p>
+          <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark">Load your encrypted settings from the browser or a file.</p>
           <label className="flex flex-col space-y-1">
             <span className="font-medium">Decryption Password</span>
             <PasswordInput
