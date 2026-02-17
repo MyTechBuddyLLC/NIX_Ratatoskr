@@ -1,6 +1,7 @@
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useState, useContext, useEffect, useMemo } from 'react';
 import { AppContext } from '../context/AppContext';
+import type { Task, HistoryEntry } from '../context/AppContext';
 import PromptHistoryItem from '../components/PromptHistoryItem';
 
 export function TaskDetail() {
@@ -10,7 +11,7 @@ export function TaskDetail() {
   const location = useLocation();
 
   const isNew = taskId === 'new';
-  const existingTask = context?.tasks.find(t => t.id === taskId) || location.state?.task;
+  const existingTask = (context?.tasks.find(t => t.id === taskId) || location.state?.task) as Task | undefined;
 
   const [name, setName] = useState('');
   const [repo, setRepo] = useState('');
@@ -32,8 +33,8 @@ export function TaskDetail() {
   const totalReviewTime = useMemo(() => {
       if (!existingTask || !existingTask.history) return 0;
       return existingTask.history
-        .filter(item => item.status === 'Ready for review')
-        .reduce((acc, item) => acc + (item.duration_mins || 0), 0);
+        .filter((item: HistoryEntry) => item.status === 'Ready for review')
+        .reduce((acc: number, item: HistoryEntry) => acc + (item.duration_mins || 0), 0);
   }, [existingTask]);
 
   if (!context) {
@@ -73,13 +74,15 @@ export function TaskDetail() {
     setExpandedIndex(expandedIndex === index ? -1 : index);
   };
 
-  const task = existingTask || {
+  const task = (existingTask || {
+    id: 'new',
     name: 'New Task',
     status: 'Pending',
     repo: '',
     initial_prompt: '',
     latest_text: '',
-  };
+    history: [],
+  }) as Task;
 
   return (
     <div className="p-4 md:p-6">
@@ -195,7 +198,7 @@ export function TaskDetail() {
               )}
             </div>
             <div className="space-y-4">
-              {task.history.map((item, index) => (
+              {(task as Task).history.map((item: HistoryEntry, index: number) => (
                 <PromptHistoryItem
                   key={index}
                   item={item}
