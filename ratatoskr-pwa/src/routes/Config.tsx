@@ -231,6 +231,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Jules API key"
               />
+              <a href="https://jules.google.com/settings" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Jules API Key</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Gemini API Key</span>
@@ -240,6 +241,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Gemini API key"
               />
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Gemini API Key</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">GitHub API Key</span>
@@ -249,6 +251,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your GitHub API key"
               />
+              <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get GitHub PAT</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Cloudflare API Key</span>
@@ -258,6 +261,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Cloudflare API key"
               />
+              <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Cloudflare API Token</a>
             </label>
           </div>
         </div>
