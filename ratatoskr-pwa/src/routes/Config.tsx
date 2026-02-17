@@ -231,6 +231,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Jules API key"
               />
+              <a href="https://jules.google.com/settings" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Jules API Key</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Gemini API Key</span>
@@ -240,6 +241,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Gemini API key"
               />
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Gemini API Key</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">GitHub API Key</span>
@@ -249,6 +251,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your GitHub API key"
               />
+              <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get GitHub PAT</a>
             </label>
             <label className="flex flex-col space-y-1">
               <span className="font-medium">Cloudflare API Key</span>
@@ -258,6 +261,7 @@ export function Config() {
                 className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark"
                 placeholder="Enter your Cloudflare API key"
               />
+              <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Get Cloudflare API Token</a>
             </label>
           </div>
         </div>
@@ -272,7 +276,7 @@ export function Config() {
                 type="number"
                 value={maxSimultaneousTasks}
                 onChange={(e) => setMaxSimultaneousTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-background-light dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 3"
               />
             </label>
@@ -282,7 +286,7 @@ export function Config() {
                 type="number"
                 value={maxDailyTasks}
                 onChange={(e) => setMaxDailyTasks(Number(e.target.value))}
-                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-gray-50 dark:hover:bg-secondary-dark transition-colors"
+                className="p-2 border rounded bg-primary-light dark:bg-primary-dark border-secondary-light dark:border-secondary-dark focus:ring-1 focus:ring-blue-500 outline-none hover:bg-background-light dark:hover:bg-secondary-dark transition-colors"
                 placeholder="e.g., 15"
               />
             </label>
@@ -294,7 +298,7 @@ export function Config() {
           <h2 className="text-lg font-semibold">Appearance</h2>
           <div>
             <span className="font-medium">Theme</span>
-            <div className="mt-2 flex rounded-md border border-gray-300 dark:border-gray-600 w-min">
+            <div className="mt-2 flex rounded-md border border-secondary-light dark:border-secondary-dark w-min overflow-hidden">
               {themeOptions.map((option) => (
                 <button
                   key={option.value}
@@ -324,7 +328,7 @@ export function Config() {
         {/* Save & Export Section */}
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Save & Export Settings</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Encrypt and save your settings to the browser or a secure SQLite package file.</p>
+          <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark">Encrypt and save your settings to the browser or a secure SQLite package file.</p>
 
           <label className="flex flex-col space-y-1 mb-4">
             <span className="font-medium">Encryption Password</span>
@@ -342,15 +346,15 @@ export function Config() {
               id="autoloadEnabled"
               checked={autoloadEnabled}
               onChange={(e) => setAutoloadEnabled(e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              className="w-4 h-4 text-blue-600 bg-secondary-light border-secondary-light rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-background-dark focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
             />
-            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+            <label htmlFor="autoloadEnabled" className="text-sm font-medium text-foreground-light dark:text-foreground-dark">
               Easy automated approach (saves password for autoload)
             </label>
           </div>
 
           {autoloadEnabled && (
-            <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
+            <div className="p-3 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-primary-dark dark:text-yellow-300 border border-yellow-200 dark:border-yellow-900" role="alert">
               <span className="font-medium">Warning!</span> This will store your encryption password in plain text in your browser's local storage. This allows for automatic loading but is less secure as anyone with access to your browser can see your encryption key and decrypt sensitive saved data such as API keys.
             </div>
           )}
@@ -384,7 +388,7 @@ export function Config() {
         {/* Load & Import Section */}
         <div className="space-y-4 p-4 border rounded-md border-secondary-light dark:border-secondary-dark">
           <h2 className="text-lg font-semibold">Load & Import Settings</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Load your encrypted settings from the browser or a file.</p>
+          <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark">Load your encrypted settings from the browser or a file.</p>
           <label className="flex flex-col space-y-1">
             <span className="font-medium">Decryption Password</span>
             <PasswordInput

@@ -39,11 +39,11 @@ export function Suggested() {
           <Link
             to={`/suggestions/${suggestion.id}`}
             key={suggestion.id}
-            className="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="block p-4 bg-primary-light dark:bg-primary-dark rounded-lg shadow hover:bg-secondary-light dark:hover:bg-secondary-dark transition-colors"
           >
             <h3 className="font-semibold text-lg">{suggestion.title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Source: {suggestion.source}</p>
-            <p className="text-sm text-gray-800 dark:text-gray-200 mt-2 truncate">{suggestion.description}</p>
+            <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark mt-1">Source: {suggestion.source}</p>
+            <p className="text-sm text-foreground-light dark:text-foreground-dark mt-2 truncate">{suggestion.description}</p>
           </Link>
         ))}
       </div>

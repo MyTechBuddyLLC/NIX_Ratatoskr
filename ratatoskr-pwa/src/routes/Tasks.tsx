@@ -25,7 +25,7 @@ export function Tasks() {
     return <div>Loading...</div>; // Or some other loading state
   }
 
-  const { julesApiKey, tasks } = context;
+  const { julesApiKey, tasks, isLoading, refreshTasks } = context;
   const availableTasks = julesApiKey ? tasks : [];
 
   const filteredTasks = availableTasks.filter(task => {
@@ -46,7 +46,21 @@ export function Tasks() {
     <div className="p-4 md:p-6">
       <ApiKeyBanner />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <div className="flex items-center space-x-4">
+          <h1 className="text-2xl font-bold">Tasks</h1>
+          {isLoading && (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          )}
+          {!isLoading && julesApiKey && (
+            <button
+              onClick={() => refreshTasks()}
+              className="text-foreground-muted-light dark:text-foreground-muted-dark hover:text-blue-600 transition-colors"
+              title="Refresh Tasks"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+          )}
+        </div>
         <button
           onClick={handleNewTask}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"
@@ -62,9 +76,9 @@ export function Tasks() {
             id="showArchived"
             checked={showArchived}
             onChange={(e) => setShowArchived(e.target.checked)}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            className="w-4 h-4 text-blue-600 bg-secondary-light border-secondary-light rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-background-dark focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
           />
-          <label htmlFor="showArchived" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+          <label htmlFor="showArchived" className="text-sm font-medium text-foreground-light dark:text-foreground-dark">
             Show Archived Tasks
           </label>
         </div>
@@ -74,51 +88,51 @@ export function Tasks() {
             id="activeOnly"
             checked={activeOnly}
             onChange={(e) => setActiveOnly(e.target.checked)}
-            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            className="w-4 h-4 text-blue-600 bg-secondary-light border-secondary-light rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-background-dark focus:ring-2 dark:bg-secondary-dark dark:border-secondary-dark"
           />
-          <label htmlFor="activeOnly" className="text-sm font-medium text-gray-900 dark:text-gray-300">
+          <label htmlFor="activeOnly" className="text-sm font-medium text-foreground-light dark:text-foreground-dark">
             Active Only
           </label>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
-          <thead className="bg-gray-50 dark:bg-primary-dark">
+        <table className="min-w-full divide-y divide-secondary-light dark:divide-secondary-dark">
+          <thead className="bg-background-light dark:bg-primary-dark">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Repo</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Initial Prompt</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Latest Text</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Repo</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Initial Prompt</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Latest Text</th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
+          <tbody className="bg-primary-light dark:bg-background-dark divide-y divide-secondary-light dark:divide-secondary-dark">
             {filteredTasks.length > 0 ? (
               filteredTasks.map((task) => (
                 <tr
                   key={task.id}
                   onClick={() => handleRowClick(task)}
-                  className="hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer"
+                  className="hover:bg-secondary-light dark:hover:bg-primary-dark cursor-pointer transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
                       task.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      'bg-secondary-light text-foreground-muted-light dark:bg-secondary-dark dark:text-foreground-muted-dark'
                     }`}>
                       {task.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{task.repo}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{task.name}</td>
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.initial_prompt}</td>
-                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">{task.latest_text}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted-light dark:text-foreground-muted-dark">{task.repo}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-light dark:text-foreground-dark">{task.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted-light dark:text-foreground-muted-dark max-w-xs truncate">{task.initial_prompt}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted-light dark:text-foreground-muted-dark max-w-xs truncate">{task.latest_text}</td>
                 </tr>
               ))
             ) : (
                 <tr>
-                  <td colSpan={5} className="text-center py-10 text-gray-500 dark:text-gray-400">
+                  <td colSpan={5} className="text-center py-10 text-foreground-muted-light dark:text-foreground-muted-dark">
                     No tasks match the current filters.
                   </td>
                 </tr>

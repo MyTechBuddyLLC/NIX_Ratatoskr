@@ -15,9 +15,9 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ onClose, onSubmit 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
+      <div className="bg-primary-light dark:bg-primary-dark p-6 rounded-lg shadow-xl">
         <h2 className="text-lg font-semibold mb-4">Enter Password</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-sm text-foreground-muted-light dark:text-foreground-muted-dark mb-4">
           Your saved settings are encrypted. Please enter your password to decrypt them.
         </p>
         <form onSubmit={handleSubmit}>
@@ -33,7 +33,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ onClose, onSubmit 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium rounded-md bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500"
+              className="px-4 py-2 text-sm font-medium rounded-md bg-secondary-light dark:bg-secondary-dark hover:bg-secondary-dark hover:text-white dark:hover:bg-primary-dark transition-colors"
             >
               Cancel
             </button>
