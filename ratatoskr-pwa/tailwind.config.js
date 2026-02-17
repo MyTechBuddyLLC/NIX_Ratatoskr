@@ -10,6 +10,7 @@ export default {
       colors: {
         'background-light': '#F5F5F5',
         'foreground-light': '#212121',
+        'foreground-muted-light': '#666666',
         'primary-light': '#FFFFFF',
         'secondary-light': '#E0E0E0',
         'background-dark': '#121212',

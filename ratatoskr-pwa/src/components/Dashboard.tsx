@@ -51,30 +51,30 @@ const Dashboard: React.FC = () => {
       <div>
         <h2 className="text-xl font-bold mb-4">Active Tasks</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-dark">
-            <thead className="bg-gray-50 dark:bg-primary-dark">
+          <table className="min-w-full divide-y divide-secondary-light dark:divide-secondary-dark">
+            <thead className="bg-background-light dark:bg-primary-dark">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Repo</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-foreground-muted-dark uppercase tracking-wider">Latest Text</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Repo</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Name</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-foreground-muted-light dark:text-foreground-muted-dark uppercase tracking-wider">Latest Text</th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-background-dark divide-y divide-gray-200 dark:divide-secondary-dark">
+            <tbody className="bg-primary-light dark:bg-background-dark divide-y divide-secondary-light dark:divide-secondary-dark">
               {activeTasks.length > 0 ? (
                 activeTasks.map((task) => (
                   <tr
                     key={task.id}
                     onClick={() => handleRowClick(task)}
-                    className="hover:bg-gray-100 dark:hover:bg-primary-dark cursor-pointer"
+                    className="hover:bg-secondary-light dark:hover:bg-primary-dark cursor-pointer transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-foreground-muted-dark">{task.repo}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-foreground-dark">{task.name}</td>
-                    <td className="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-foreground-muted-dark max-w-xs truncate">{task.latest_text}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted-light dark:text-foreground-muted-dark">{task.repo}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-light dark:text-foreground-dark">{task.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted-light dark:text-foreground-muted-dark max-w-xs truncate">{task.latest_text}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="text-center py-10 text-gray-500 dark:text-foreground-muted-dark">
+                  <td colSpan={3} className="text-center py-10 text-foreground-muted-light dark:text-foreground-muted-dark">
                     No active tasks.
                   </td>
                 </tr>

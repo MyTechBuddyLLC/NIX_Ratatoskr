@@ -6,6 +6,18 @@ import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
 import { fromString, toString } from 'uint8arrays';
 
+export interface HistoryEntry {
+  prompt: string;
+  output: string;
+  timestamp: string;
+  duration_mins?: number;
+  status?: 'Ready for review' | 'Working';
+  branchName?: string;
+  prUrl?: string;
+  additions?: number;
+  deletions?: number;
+}
+
 export interface Task {
   id: string;
   status: 'Completed' | 'In Progress' | 'Pending';
@@ -14,6 +26,7 @@ export interface Task {
   initial_prompt: string;
   latest_text: string;
   isArchived?: boolean;
+  history: HistoryEntry[];
 }
 
 export interface Repo {
@@ -67,6 +80,25 @@ const mockTasks: Task[] = [
     name: 'Initial UI setup',
     initial_prompt: 'Create the basic layout and navigation for the PWA.',
     latest_text: 'Finished setting up the bottom tabs and basic routing.',
+    history: [
+      {
+        prompt: 'Create the basic layout and navigation for the PWA.',
+        output: 'I have set up the basic layout with a sidebar for desktop and bottom tabs for mobile. I used React Router for navigation.',
+        timestamp: '2024-07-29T10:00:00Z',
+        duration_mins: 15,
+      },
+      {
+        prompt: 'Add some mock data for tasks and repos.',
+        output: 'Ready for review 🎉\n\nI have added mock data to the AppContext to demonstrate the UI features.',
+        timestamp: '2024-07-29T10:30:00Z',
+        duration_mins: 20,
+        status: 'Ready for review',
+        branchName: 'feat-mock-data-12345',
+        prUrl: 'https://github.com/example/ratatoskr-pwa/pull/1',
+        additions: 120,
+        deletions: 5,
+      }
+    ],
   },
   {
     id: '2',
@@ -75,6 +107,26 @@ const mockTasks: Task[] = [
     name: 'Implement theme switching',
     initial_prompt: 'Add dark/light/system theme support.',
     latest_text: 'Enabled class-based dark mode in Tailwind.',
+    history: [
+      {
+        prompt: 'Add dark/light/system theme support.',
+        output: 'I am working on adding theme support using Tailwind CSS and React Context.',
+        timestamp: '2024-07-30T09:00:00Z',
+        duration_mins: 10,
+        status: 'Working',
+      },
+      {
+        prompt: 'Please add a "Ready for review" status to the history.',
+        output: 'Ready for review 🎉\n\nI have implemented the theme switching logic and verified it works in dark mode.',
+        timestamp: '2024-07-30T10:00:00Z',
+        duration_mins: 37,
+        status: 'Ready for review',
+        branchName: 'fix-table-blue-tint-dark-mode-13234993608605035778',
+        prUrl: 'https://github.com/example/ratatoskr-pwa/pull/2',
+        additions: 61,
+        deletions: 15,
+      }
+    ],
   },
   {
     id: '3',
@@ -83,6 +135,7 @@ const mockTasks: Task[] = [
     name: 'Define task API endpoint',
     initial_prompt: 'Create a new API endpoint to fetch user tasks.',
     latest_text: 'Waiting on backend schema definition.',
+    history: [],
   },
   {
     id: '4',
@@ -91,6 +144,19 @@ const mockTasks: Task[] = [
     name: 'Fix login bug',
     initial_prompt: 'Users are unable to log in with special characters in their passwords.',
     latest_text: 'Patched the authentication controller to handle special characters.',
+    history: [
+       {
+        prompt: 'Users are unable to log in with special characters in their passwords.',
+        output: 'Ready for review 🎉\n\nI have fixed the issue by properly encoding the password before sending it to the server.',
+        timestamp: '2024-07-25T12:00:00Z',
+        duration_mins: 45,
+        status: 'Ready for review',
+        branchName: 'fix-login-bug',
+        prUrl: 'https://github.com/example/project-x/pull/42',
+        additions: 15,
+        deletions: 2,
+      }
+    ],
   },
 ];
 
@@ -199,6 +265,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setTheme(theme);
           setMaxSimultaneousTasks(maxSimultaneousTasks ?? 3);
           setMaxDailyTasks(maxDailyTasks ?? 15);
+          if (tasks) setTasks(tasks);
+          if (repos) setRepos(repos);
         } catch (e) {
           console.error('Failed to load unencrypted settings:', e);
         }
