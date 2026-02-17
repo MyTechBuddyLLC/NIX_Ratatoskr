@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { PasswordModal } from '../components/PasswordModal';
+import { listSessions, listActivities, listSources } from '../utils/julesApi';
+import type { JulesSession, JulesActivity } from '../utils/julesApi';
 import { deriveKey } from '@stablelib/pbkdf2';
 import { SHA256 } from '@stablelib/sha256';
 import { ChaCha20Poly1305 } from '@stablelib/chacha20poly1305';
@@ -11,7 +13,7 @@ export interface HistoryEntry {
   output: string;
   timestamp: string;
   duration_mins?: number;
-  status?: 'Ready for review' | 'Working';
+  status?: 'Ready for review' | 'Ready for submission' | 'Working';
   branchName?: string;
   prUrl?: string;
   additions?: number;
@@ -53,6 +55,7 @@ interface AppSettings {
 
 // Define the shape of the context data
 interface AppContextType extends AppSettings {
+  isLoading: boolean;
   setJulesApiKey: (apiKey: string) => void;
   setGeminiApiKey: (apiKey: string) => void;
   setGithubApiKey: (apiKey: string) => void;
@@ -64,6 +67,7 @@ interface AppContextType extends AppSettings {
   setRepos: (repos: Repo[]) => void;
   addTask: (task: Omit<Task, 'id'>) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
+  refreshTasks: () => Promise<void>;
   addRepo: (repo: Omit<Repo, 'id'>) => void;
   updateRepo: (id: string, updates: Partial<Repo>) => void;
 }
@@ -191,6 +195,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [maxDailyTasks, setMaxDailyTasks] = useState(15);
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [repos, setRepos] = useState<Repo[]>(mockRepos);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const loadSettings = async (password: string) => {
@@ -314,6 +319,90 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setRepos(repos.map((r) => (r.id === id ? { ...r, ...updates } : r)));
   };
 
+  const mapJulesStatus = (state: JulesSession['state']): Task['status'] => {
+    switch (state) {
+      case 'QUEUED':
+      case 'PLANNING':
+        return 'Pending';
+      case 'IN_PROGRESS':
+      case 'AWAITING_PLAN_APPROVAL':
+      case 'AWAITING_USER_FEEDBACK':
+        return 'In Progress';
+      case 'COMPLETED':
+      case 'FAILED':
+        return 'Completed';
+      default:
+        return 'Pending';
+    }
+  };
+
+  const refreshTasks = async () => {
+    if (!julesApiKey) return;
+    setIsLoading(true);
+    try {
+      const sessions = await listSessions(julesApiKey);
+      const sources = await listSources(julesApiKey);
+
+      // Update repos based on sources
+      const fetchedRepos: Repo[] = sources.map(source => ({
+          id: source.id,
+          name: source.githubSourceContext?.repo || source.name,
+          description: `Jules Source: ${source.name}`,
+          last_updated: new Date().toISOString(), // Sources don't have updateTime in the alpha?
+          github_url: source.githubSourceContext ? `https://github.com/${source.githubSourceContext.owner}/${source.githubSourceContext.repo}` : undefined,
+      }));
+      if (fetchedRepos.length > 0) {
+          // Merge with existing repos or replace? For now replace mock with real if any.
+          setRepos(fetchedRepos);
+      }
+
+      const fetchedTasks: Task[] = await Promise.all(sessions.map(async (session) => {
+        const activities: JulesActivity[] = await listActivities(julesApiKey, session.id);
+        const history: HistoryEntry[] = activities
+          .filter(a => a.agentMessaged || a.userMessaged)
+          .map(a => {
+            const output = a.agentMessaged?.text || a.userMessaged?.text || '';
+            const isReady = output.includes('Ready for review') || output.includes('Ready for submission');
+            const durationMatch = output.match(/Time:\s*(\d+)\s*mins/i);
+            const additionsMatch = output.match(/\+(\d+)/);
+            const deletionsMatch = output.match(/-(\d+)/);
+
+            return {
+              prompt: a.originator === 'user' ? output : (a.description || 'Agent Action'),
+              output: output,
+              timestamp: a.createTime,
+              duration_mins: durationMatch ? parseInt(durationMatch[1], 10) : undefined,
+              additions: additionsMatch ? parseInt(additionsMatch[1], 10) : undefined,
+              deletions: deletionsMatch ? parseInt(deletionsMatch[1], 10) : undefined,
+              status: isReady ? 'Ready for review' : (a.originator === 'agent' ? 'Working' : undefined),
+            };
+          });
+
+        return {
+          id: session.id,
+          name: session.title || 'Untitled Task',
+          status: mapJulesStatus(session.state),
+          repo: session.sourceContext?.source.split('/').pop() || 'Unknown Repo',
+          initial_prompt: session.prompt,
+          latest_text: history.length > 0 ? history[history.length - 1].output : 'No activity yet',
+          history: history,
+        };
+      }));
+
+      setTasks(fetchedTasks);
+    } catch (e) {
+      console.error('Failed to refresh tasks:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (julesApiKey) {
+      refreshTasks();
+    }
+  }, [julesApiKey]);
+
   const value = {
     julesApiKey,
     setJulesApiKey,
@@ -333,8 +422,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setTasks,
     repos,
     setRepos,
+    isLoading,
     addTask,
     updateTask,
+    refreshTasks,
     addRepo,
     updateRepo,
   };

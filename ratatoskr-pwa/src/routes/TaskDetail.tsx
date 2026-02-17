@@ -33,7 +33,7 @@ export function TaskDetail() {
   const totalReviewTime = useMemo(() => {
       if (!existingTask || !existingTask.history) return 0;
       return existingTask.history
-        .filter((item: HistoryEntry) => item.status === 'Ready for review')
+        .filter((item: HistoryEntry) => item.status === 'Ready for review' || item.status === 'Ready for submission')
         .reduce((acc: number, item: HistoryEntry) => acc + (item.duration_mins || 0), 0);
   }, [existingTask]);
 
@@ -87,7 +87,7 @@ export function TaskDetail() {
   return (
     <div className="p-4 md:p-6">
       <div className="flex justify-between items-center mb-6">
-        {isEditing ? (
+        {isEditing && isNew ? (
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -97,7 +97,7 @@ export function TaskDetail() {
         ) : (
           <h1 className="text-2xl font-bold">{task.name}</h1>
         )}
-        {!isEditing && (
+        {isNew && !isEditing && (
           <button
             onClick={() => setIsEditing(true)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"

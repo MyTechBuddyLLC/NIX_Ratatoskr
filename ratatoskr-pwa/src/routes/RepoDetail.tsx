@@ -81,9 +81,9 @@ export function RepoDetail() {
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"
           >
-            Edit
+            Edit Repository
           </button>
         )}
       </div>

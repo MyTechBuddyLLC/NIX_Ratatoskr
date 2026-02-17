@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const { julesApiKey, maxSimultaneousTasks, maxDailyTasks, tasks } = context;
+  const { julesApiKey, maxSimultaneousTasks, maxDailyTasks, tasks, isLoading, refreshTasks } = context;
 
   const availableTasks = julesApiKey ? tasks : [];
   const activeTasks = availableTasks.filter(task => task.status === 'In Progress' && !task.isArchived);
@@ -26,7 +26,21 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-4 md:p-6">
       <ApiKeyBanner />
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="flex items-center space-x-4 mb-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        {isLoading && (
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+        )}
+        {!isLoading && julesApiKey && (
+          <button
+            onClick={() => refreshTasks()}
+            className="text-foreground-muted-light dark:text-foreground-muted-dark hover:text-blue-600 transition-colors"
+            title="Refresh Tasks"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          </button>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div
           onClick={() => navigate('/tasks', { state: { filter: 'active' } })}

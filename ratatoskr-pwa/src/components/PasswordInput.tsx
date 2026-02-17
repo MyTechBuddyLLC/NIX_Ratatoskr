@@ -36,7 +36,7 @@ export function PasswordInput(props: PasswordInputProps) {
       <button
         type="button"
         onClick={toggleShowPassword}
-        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-foreground-muted-dark"
+        className="absolute inset-y-0 right-0 flex items-center px-3 text-foreground-muted-light dark:text-foreground-muted-dark"
         aria-label={showPassword ? 'Hide password' : 'Show password'}
       >
         {showPassword ? <EyeOffIcon /> : <EyeIcon />}
